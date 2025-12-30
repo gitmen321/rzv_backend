@@ -1,60 +1,51 @@
-const users = [
-    { id: 1, name: "Adam", age: 22 },
-    { id: 2, name: "Sara", age: 25 },
-    { id: 3, name: "John", age: 20 }
-];
+const User = require('../models/User');
 
-const findAll = () => {
-    console.log("[repository] fetching all users");
-    return users;
+const findAll = async () => {
+    console.log("Fetching user[repo]");
+    return await User.find();
 };
 
-const findById = (id) => {
-    return users.find(u => u.id === id) || null;
-};
-
-const findByNameAndAge = (name, age) => {
-    return users.find(u => u.name === name && u.age === age) || null;
+const findById = async (id) => {
+    return await User.findById(id);
 }
 
-
-const create = ({ name, age }) => {
-    const newUser = {
-        id: users.length + 1,
-        name,
-        age,
-    };
-    users.push(newUser);
-    return newUser;
+const findByName = async (name) => {
+    return await User.findOne({ name });
 }
 
-const update = (id, updatedData) => {
-    const index = users.findIndex(u => u.id === id);
-
-    if (index === -1) return null;
-
-    users[index] = {
-        ...users[index],
-        ...updatedData
-    };
-    return users[index];
+const findByNameAndAge = async (name, age) => {
+    return await User.findOne({ name, age });
 };
 
 
-const remove = (id) => {
-    const index = users.findIndex(u => u.id === id);
+const create = async ({ name, age }) => {
+    try {
+        const user = new User({ name, age });
+        return await user.save();
+    }
+    catch (err) {
+        err.message = "DB_ERROR";
+        throw err;
+    }
+};
 
-    if (index === -1) return false;
-    const deletedUser = users[index];
+const update = async (id, updatedData) => {
+    return await User.findByIdAndUpdate(
+        id,
+        updatedData,
+        { new: true }
+    );
+};
 
-    users.splice(index, 1);
-    return deletedUser;
-}
 
-const count = () => {
-    return users.length;
+const remove = async (id) => {
+    return await User.findByIdAndDelete(id);
+};
+
+const count = async () => {
+    return await User.countDocuments();
 }
 
 module.exports = {
-    findAll, findById, create, findByNameAndAge, update, remove, count
+    findAll, findById, findByName, create, findByNameAndAge, update, remove, count
 }

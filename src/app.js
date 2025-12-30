@@ -4,7 +4,7 @@ const logger = require('./middlewares/logger');
 const app = express();
 
 app.use(logger);
-app.use(express.json);
+app.use(express.json());
 
 // routes
 const userRoutes = require('./routes/userRoutes');

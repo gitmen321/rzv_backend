@@ -1,11 +1,11 @@
 const userRepository = require('../repositories/user.repositories');
 
-const getAllUsers = () => {
-    return userRepository.findAll();
+const getAllUsers = async () => {
+    return await userRepository.findAll();
 };
 
-const getUserById = (id) => {
-    const user = userRepository.findById(id);
+const getUserById = async (id) => {
+    const user = await userRepository.findById(id);
 
     if (!user) {
         throw new Error("USER_NOT_FOUND");
@@ -13,24 +13,33 @@ const getUserById = (id) => {
     return user;
 };
 
+const getUserByName = async (name) => {
+    const user = await userRepository.findByName(name);
+
+    if (!user) {
+        throw new Error("USER_NAME_NOT_FOUND");
+    }
+    return user;
+}
 
 
-const createUser = (newUser) => {
+
+const createUser = async (newUser) => {
     const { name, age } = newUser;
 
-    const existingUser = userRepository.findByNameAndAge(name, age);
+    const existingUser = await userRepository.findByNameAndAge(name, age);
 
     if (existingUser) {
         throw new Error("USER_ALREADY_EXISTS");
 
     }
-    return userRepository.create({ name, age });
+    return await userRepository.create({ name, age });
 };
 
 
 
-const updateUser = (id, updatedData) => {
-    const updatedUser = userRepository.update(id, updatedData);
+const updateUser = async (id, updatedData) => {
+    const updatedUser = await userRepository.update(id, updatedData);
 
     if (!updatedUser) {
         throw new Error("USER_NOT_FOUND");
@@ -38,8 +47,8 @@ const updateUser = (id, updatedData) => {
     return updatedUser;
 };
 
-const deleteUser = (id) => {
-    const deleted = userRepository.remove(id);
+const deleteUser = async (id) => {
+    const deleted = await userRepository.remove(id);
 
     if (!deleted) {
         throw new Error("USER_NOT_FOUND");
@@ -47,11 +56,11 @@ const deleteUser = (id) => {
     return deleted;
 };
 
-const countUser = () => {
-    return userRepository.count();
+const countUser = async () => {
+    return await userRepository.count();
 };
 
 
 module.exports = {
-    getAllUsers, getUserById, createUser, updateUser, deleteUser, countUser
+    getAllUsers, getUserById, createUser, updateUser, deleteUser, countUser, getUserByName
 };

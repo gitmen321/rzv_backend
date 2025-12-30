@@ -1,43 +1,53 @@
-// const e = require('express');
-const userService = require('../../services/userService');
+const userService = require('../services/userService');
 
-exports.getAllUsers = (req, res) => {
-    const users = userService.getAllUsers();
+exports.getAllUsers = async (req, res) => {
+    const users = await userService.getAllUsers();
     console.log("Users from services", users);
     res.status(200).json(users);
 }
 
-exports.countUsers = (req, res) => {
-    const usersCount = userService.countUser();
+exports.countUsers = async (req, res) => {
+    const usersCount = await userService.countUser();
     res.status(200).json({
         message: "User count is:",
         user: usersCount,
     });
 };
 
-exports.getUserById = (req, res, next) => {
+exports.getUserById = async (req, res, next) => {
 
     try {
-        const id = parseInt(req.params.id);
-        const user = userService.getUserById(id);
+        const id = req.params.id;
+        const user = await userService.getUserById(id);
         res.status(200).json(user);
     }
 
     catch (error) {
         next(error);
+    }
+};
 
+exports.getUserByName = async(req, res, next) => {
+    try {
+        const name = req.params.name;
+        const user = await userService.getUserByName(name);
+        console.log(user);
+        res.status(200).json(user);
+        
+    } catch (error) {
+        next(error);
     }
 };
 
 
 
-exports.createUsers = (req, res, next) => {
+exports.createUsers = async (req, res, next) => {
 
     try {
         const newUser = req.body;
 
 
-        const cretatedUser = userService.createUser(newUser);
+        const cretatedUser = await userService.createUser(newUser);
 
         res.status(201).json({
             user: cretatedUser,
@@ -50,12 +60,12 @@ exports.createUsers = (req, res, next) => {
     }
 };
 
-exports.updateUsers = (req, res, next) => {
+exports.updateUsers = async (req, res, next) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const updatedData = req.body;
 
-        const updatedUser = userService.updateUser(id, updatedData);
+        const updatedUser = await userService.updateUser(id, updatedData);
 
         res.status(200).json({
             message: "User updated",
@@ -69,10 +79,10 @@ exports.updateUsers = (req, res, next) => {
 };
 
 
-exports.deleteUser = (req, res, next) => {
+exports.deleteUser = async (req, res, next) => {
     try {
-        const id = parseInt(req.params.id);
-        const deletedUser = userService.deleteUser(id);
+        const id = req.params.id;
+        const deletedUser = await userService.deleteUser(id);
 
         res.status(200).json({
             message: "User Deleted",
