@@ -9,6 +9,16 @@ const erroHandler = (err, req, res, next) => {
         });
     }
 
+    // invalid json body
+    if (err instanceof SyntaxError && err.type === 'entity.parse.failed') {
+        return res.status(400).json({
+            message: 'Invalid Json body'
+        });
+    }
+
+
+
+
     switch (err.message) {
         case "USER_NOT_FOUND":
             return res.status(404).json({
@@ -29,5 +39,8 @@ const erroHandler = (err, req, res, next) => {
             });
     }
 };
+
+
+
 
 module.exports = erroHandler;

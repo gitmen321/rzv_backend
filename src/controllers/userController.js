@@ -1,10 +1,20 @@
 const userService = require('../services/userService');
 
-exports.getAllUsers = async (req, res) => {
-    const users = await userService.getAllUsers();
-    console.log("Users from services", users);
-    res.status(200).json(users);
-}
+exports.getAllUsers = async (req, res, next) => {
+
+    try{
+
+    const { page, limit, sortBy, order } = req.query;
+    console.log("requested body:",req.query);
+    const result = await userService.getAllUsers(page, limit, sortBy, order);
+    console.log("Users from services", result);
+    res.status(200).json(result);
+    }
+    catch (err) {
+        console.err(err);
+        next(err);
+    }
+};
 
 exports.countUsers = async (req, res) => {
     const usersCount = await userService.countUser();
@@ -27,13 +37,13 @@ exports.getUserById = async (req, res, next) => {
     }
 };
 
-exports.getUserByName = async(req, res, next) => {
+exports.getUserByName = async (req, res, next) => {
     try {
         const name = req.params.name;
         const user = await userService.getUserByName(name);
         console.log(user);
         res.status(200).json(user);
-        
+
     } catch (error) {
         next(error);
     }

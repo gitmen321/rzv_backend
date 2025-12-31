@@ -1,9 +1,14 @@
 const User = require('../models/User');
 
-const findAll = async () => {
+const findAll = async (page, limit, skip, sortField, sortOrder) => {
     console.log("Fetching user[repo]");
-    return await User.find();
+
+    return await User.find().skip(skip).limit(limit).sort({ [sortField]: sortOrder });
 };
+
+const findCountDocs = async () => {
+    return await User.countDocuments();
+}
 
 const findById = async (id) => {
     return await User.findById(id);
@@ -47,5 +52,5 @@ const count = async () => {
 }
 
 module.exports = {
-    findAll, findById, findByName, create, findByNameAndAge, update, remove, count
+    findAll, findById, findByName, create, findByNameAndAge, update, remove, count, findCountDocs
 }
