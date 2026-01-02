@@ -1,22 +1,24 @@
 const User = require('../models/User');
 
-const findAll = async (page, limit, skip, sortField, sortOrder) => {
-    console.log("Fetching user[repo]");
+const findAll = async (page, limit, skip, sortField, sortOrder, filter) => {
 
-    return await User.find().skip(skip).limit(limit).sort({ [sortField]: sortOrder });
+    console.log("Fetching user[repo]");
+    return await User.find(filter).skip(skip).limit(limit).sort({ [sortField]: sortOrder });
+
 };
 
-const findCountDocs = async () => {
-    return await User.countDocuments();
-}
+const findCountDocs = async (filter) => {
+    return await User.countDocuments(filter);
+};
+
 
 const findById = async (id) => {
     return await User.findById(id);
-}
+};
 
 const findByName = async (name) => {
     return await User.findOne({ name });
-}
+};
 
 const findByNameAndAge = async (name, age) => {
     return await User.findOne({ name, age });

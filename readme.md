@@ -48,6 +48,8 @@ sortBy (default: createdAt)
 
 order (asc | desc, default: desc)
 
+search (Search by user name (partial match) optional)
+
 Features:
 
 Pagination using skip & limit
@@ -55,6 +57,8 @@ Pagination using skip & limit
 Dynamic sorting
 
 Metadata response
+
+search (regex based)
 
 Example Request:
 
@@ -163,13 +167,15 @@ Server errors → 500
 
 Implemented layered architecture:
 
-Controller
+Controller ->
+ 
+Service ->
 
-Service
+Repository ->
 
-Repository
+Database
 
-Pagination using MongoDB skip & limit
+Pagination using MongoDB skip & limit 
 
 Sorting with dynamic fields
 

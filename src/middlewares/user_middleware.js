@@ -7,6 +7,7 @@ const isValid = (req, res, next) => {
 
 
     if (!name || age === undefined) {
+        console.log(name, age);
         console.log('middleware Invalid');
         return res.status(400).json({
             message: "Name and age are required",
@@ -19,6 +20,7 @@ const isValid = (req, res, next) => {
             message: "age must be a number"
         });
     }
+    
     console.log('middleware valid');
     next();
 

@@ -4,14 +4,14 @@ exports.getAllUsers = async (req, res, next) => {
 
     try{
 
-    const { page, limit, sortBy, order } = req.query;
+    const { page, limit, sortBy, order, search } = req.query;
     console.log("requested body:",req.query);
-    const result = await userService.getAllUsers(page, limit, sortBy, order);
+    const result = await userService.getAllUsers(page, limit, sortBy, order, search);
     console.log("Users from services", result);
     res.status(200).json(result);
     }
     catch (err) {
-        console.err(err);
+        console.err('error',err);
         next(err);
     }
 };

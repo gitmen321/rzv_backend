@@ -1,12 +1,19 @@
 const userRepository = require('../repositories/user.repositories');
 
-const getAllUsers = async (page, limit, sortBy, order) => {
+const getAllUsers = async (page, limit, sortBy, order, search) => {
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 10;
 
     const skip = (pageNum - 1) * limitNum;
 
-    const totalUsers = await userRepository.findCountDocs();
+    const searchQuery = search;
+    const filter = {};
+
+    if (searchQuery) {
+        filter.name = { $regex: searchQuery, $options: 'i' }
+    };
+
+    const totalUsers = await userRepository.findCountDocs(filter);
     console.log('Totalusers:', totalUsers);
 
 
@@ -18,7 +25,7 @@ const getAllUsers = async (page, limit, sortBy, order) => {
     const sortOrder = order === 'desc' ? -1 : 1;
 
 
-    const users = await userRepository.findAll(page, limit, skip, sortField, sortOrder);
+    const users = await userRepository.findAll(page, limit, skip, sortField, sortOrder, filter);
 
     return {
         data: users,
