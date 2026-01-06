@@ -1,4 +1,8 @@
-const userService = require('../services/userService');
+const UserServices = require('../services/userService');
+const userRepository = require('../repositories/user.repositories');
+
+const userService = new UserServices(userRepository);
+
 
 exports.getAllUsers = async (req, res, next) => {
 
@@ -6,7 +10,9 @@ exports.getAllUsers = async (req, res, next) => {
 
     const { page, limit, sortBy, order, search } = req.query;
     console.log("requested body:",req.query);
-    const result = await userService.getAllUsers(page, limit, sortBy, order, search);
+
+    const result = await userService.getAllUsers(page, limit, sortBy, order, search); //abstraction: exposing what a class does it, not how it does it
+
     console.log("Users from services", result);
     res.status(200).json(result);
     }

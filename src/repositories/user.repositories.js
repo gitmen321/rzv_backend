@@ -49,10 +49,7 @@ const remove = async (id) => {
     return await User.findByIdAndDelete(id);
 };
 
-const count = async () => {
-    return await User.countDocuments();
-}
 
 module.exports = {
-    findAll, findById, findByName, create, findByNameAndAge, update, remove, count, findCountDocs
+    findAll, findById, findByName, create, findByNameAndAge, update, remove, findCountDocs
 }
