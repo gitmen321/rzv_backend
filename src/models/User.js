@@ -7,13 +7,36 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
-        age:{
+        age: {
             type: Number,
-            required: true
-        }
+            
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            index: true
+        },
+        password: {
+            type: String,
+            required: true,
+            select: false
+        },
+        role:{
+            type: String,
+            enum: ['user','admin'],
+            default: 'user',
+            required: true,
+        },
+        isActive:{
+            type: Boolean,
+            default : true,     
+        },
+        
     },
     {
-        timestamps : true
+        timestamps: true
     }
 );
 

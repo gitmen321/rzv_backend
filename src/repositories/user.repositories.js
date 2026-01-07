@@ -7,6 +7,13 @@ const findAll = async (page, limit, skip, sortField, sortOrder, filter) => {
 
 };
 
+const findByEmail = async (email) => {
+    return await User.findOne({ email });
+};
+
+
+
+
 const findCountDocs = async (filter) => {
     return await User.countDocuments(filter);
 };
@@ -20,21 +27,22 @@ const findByName = async (name) => {
     return await User.findOne({ name });
 };
 
-const findByNameAndAge = async (name, age) => {
-    return await User.findOne({ name, age });
-};
+// const findByNameAndAge = async (name, age) => {
+//     return await User.findOne({ name, age });
+// };
 
 
-const create = async ({ name, age }) => {
+const create = async ({ name, age, email, password }) => {
     try {
-        const user = new User({ name, age });
+        const user = new User({ name, age, email, password });
         return await user.save();
     }
-    catch (err) {
-        err.message = "DB_ERROR";
-        throw err;
+    catch {
+        throw new Error("DB_ERROR");
     }
 };
+
+
 
 const update = async (id, updatedData) => {
     return await User.findByIdAndUpdate(
@@ -46,10 +54,15 @@ const update = async (id, updatedData) => {
 
 
 const remove = async (id) => {
-    return await User.findByIdAndDelete(id);
+    return await User.findByIdAndUpdate(
+        id,
+        { isActive: false },
+        { new: true }
+
+    );
 };
 
 
 module.exports = {
-    findAll, findById, findByName, create, findByNameAndAge, update, remove, findCountDocs
+    findAll, findById, findByName, create, update, remove, findCountDocs, findByEmail
 }

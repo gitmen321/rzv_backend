@@ -2,25 +2,29 @@ const mongoose = require('mongoose');
 
 
 const isValid = (req, res, next) => {
-    const { name, age } = req.body || {};
+    const { name, age, email, password } = req.body || {};
 
 
 
-    if (!name || age === undefined) {
-        console.log(name, age);
+    if (!name || !email || !password) {
+        console.log(name, email);
         console.log('middleware Invalid');
         return res.status(400).json({
-            message: "Name and age are required",
+            message: "Name and Email & password required",
 
         });
 
     }
-    if (typeof age !== "number") {
-        return res.status(400).json({
-            message: "age must be a number"
-        });
+
+    if (age) {
+        if (typeof age !== "number") {
+            return res.status(400).json({
+                message: "age must be a number"
+            });
+        }
+
     }
-    
+
     console.log('middleware valid');
     next();
 
@@ -41,7 +45,7 @@ const validateName = (req, res, next) => {
             message: "Invalid name format"
         });
     }
-    
+
     next();
 }
 

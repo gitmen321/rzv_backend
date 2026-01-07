@@ -24,9 +24,9 @@ const erroHandler = (err, req, res, next) => {
             return res.status(404).json({
                 message: "User not found"
             });
-        case "USER_ALREADY_EXISTS":
+        case "EMAIL_ALREADY_EXISTS":
             return res.status(409).json({
-                message: "User already exists"
+                message: "Email already exists"
             });
         case "USER_NAME_NOT_FOUND":
             return res.status(404).json({

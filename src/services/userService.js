@@ -4,8 +4,8 @@
 
 class UserServices {
 
-    constructor(repository) {
-        this.repository = repository;
+    constructor(userRepository) {
+        this.userRepository = userRepository;
     }
 
 
@@ -23,7 +23,7 @@ class UserServices {
             filter.name = { $regex: searchQuery, $options: 'i' }
         };
 
-        const totalUsers = await this.repository.findCountDocs(filter);
+        const totalUsers = await this.userRepository.findCountDocs(filter);
         console.log('Totalusers:', totalUsers);
 
 
@@ -35,7 +35,7 @@ class UserServices {
         const sortOrder = order === 'desc' ? -1 : 1;
 
 
-        const users = await this.repository.findAll(page, limit, skip, sortField, sortOrder, filter); //abstraction: easy to change DB, easy to test, easy to scale
+        const users = await this.userRepository.findAll(page, limit, skip, sortField, sortOrder, filter); //abstraction: easy to change DB, easy to test, easy to scale
 
 
 
@@ -53,7 +53,7 @@ class UserServices {
     }
 
     async getUserById(id) {
-        const user = await this.repository.findById(id);
+        const user = await this.userRepository.findById(id);
 
         if (!user) {
             throw new Error("USER_NOT_FOUND");
@@ -62,7 +62,7 @@ class UserServices {
     };
 
     async getUserByName(name) {
-        const user = await this.repository.findByName(name);
+        const user = await this.userRepository.findByName(name);
 
         if (!user) {
             throw new Error("USER_NAME_NOT_FOUND");
@@ -73,21 +73,26 @@ class UserServices {
 
 
     async createUser(newUser) {
-        const { name, age } = newUser;
+        const { name, age, email, password } = newUser;
 
-        const existingUser = await this.repository.findByNameAndAge(name, age);
+        // const existingUser = await this.userRepository.findByNameAndAge(name, age);
+        const existingEmail = await this.userRepository.findByEmail(email);
 
-        if (existingUser) {
-            throw new Error("USER_ALREADY_EXISTS");
+
+        if (existingEmail) {
+            throw new Error("EMAIL_ALREADY_EXISTS");
 
         }
-        return await this.repository.create({ name, age });
+        return await this.userRepository.create({ name, age, email, password });
     };
 
 
 
     async updateUser(id, updatedData) {
-        const updatedUser = await this.repository.update(id, updatedData);
+
+        delete updatedData.email;
+        delete updatedData.password;
+        const updatedUser = await this.userRepository.update(id, updatedData);
 
         if (!updatedUser) {
             throw new Error("USER_NOT_FOUND");
@@ -96,21 +101,19 @@ class UserServices {
     };
 
     async deleteUser(id) {
-        const deleted = await this.repository.remove(id);
+        const user = await this.userRepository.remove(id);
 
-        if (!deleted) {
+        if (!user) {
             throw new Error("USER_NOT_FOUND");
         }
-        return deleted;
+        return user;
     };
 
     async countUser() {
-        return await this.repository.findCountDocs();
+        return await this.userRepository.findCountDocs({});
     }
 
-    // const countUser = async () => {
-    //     return await userRepository.count();
-    // };
+    
 
 }
-module.exports = UserServices;
+module.exports = UserServices;  
