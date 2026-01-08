@@ -35,10 +35,13 @@ const findByName = async (name) => {
 const create = async ({ name, age, email, password }) => {
     try {
         const user = new User({ name, age, email, password });
+        console.log('repos try block');
         return await user.save();
     }
-    catch {
-        throw new Error("DB_ERROR");
+    catch (err) {
+        console.log("Actual error:", err);
+
+        throw err;
     }
 };
 

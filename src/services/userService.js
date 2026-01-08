@@ -75,7 +75,6 @@ class UserServices {
     async createUser(newUser) {
         const { name, age, email, password } = newUser;
 
-        // const existingUser = await this.userRepository.findByNameAndAge(name, age);
         const existingEmail = await this.userRepository.findByEmail(email);
 
 

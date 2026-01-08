@@ -1,6 +1,13 @@
 const erroHandler = (err, req, res, next) => {
     console.error(err.stack);
 
+    if (err.name == "ValidationError") {
+        return res.status(400).json({
+            message: err.message
+        });
+
+    }
+
 
 
     if (err.name === "DB_ERROR" || err.name === "MongooseError" || err.name === " MongoError") {

@@ -6,15 +6,15 @@ const userService = new UserServices(userRepository);
 
 exports.getAllUsers = async (req, res, next) => {
 
-    try{
+    try {
 
-    const { page, limit, sortBy, order, search } = req.query;
-    console.log("requested body:",req.query);
+        const { page, limit, sortBy, order, search } = req.query;
+        console.log("requested body:", req.query);
 
-    const result = await userService.getAllUsers(page, limit, sortBy, order, search); //abstraction: exposing what a class does it, not how it does it
+        const result = await userService.getAllUsers(page, limit, sortBy, order, search); //abstraction: exposing what a class does it, not how it does it
 
-    console.log("Users from services", result);
-    res.status(200).json(result);
+        console.log("Users from services", result);
+        res.status(200).json(result);
     }
     catch (err) {
         console.err(err);
@@ -61,6 +61,7 @@ exports.createUsers = async (req, res, next) => {
 
     try {
         const newUser = req.body;
+        console.log(newUser);
 
 
         const cretatedUser = await userService.createUser(newUser);
@@ -73,7 +74,7 @@ exports.createUsers = async (req, res, next) => {
     catch (error) {
         next(error);
 
-    }
+    };
 };
 
 exports.updateUsers = async (req, res, next) => {
