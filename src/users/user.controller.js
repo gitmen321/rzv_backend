@@ -1,5 +1,5 @@
-const UserServices = require('../services/userService');
-const userRepository = require('../repositories/user.repositories');
+const UserServices = require('./user.service');
+const userRepository = require('./user.repositories');
 
 const userService = new UserServices(userRepository);
 

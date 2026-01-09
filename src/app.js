@@ -7,11 +7,11 @@ app.use(logger);
 app.use(express.json());
 
 // routes
-const userRoutes = require('./routes/userRoutes');
-const statusRoutes = require('./routes/statusRoutes');
+const userRoutes = require('./users/user.routes');
+const authRoutes = require('./auth/auth.routes');
 
 app.use('/api', userRoutes);
-app.use('/api', statusRoutes);
+app.use('/api', authRoutes);
 
 //error handler MUST be last
 const errorHandler = require('./middlewares/errorHandler');

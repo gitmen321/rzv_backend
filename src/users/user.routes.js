@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../controllers/userController');
+const userController = require('./user.controller');
 const validations = require('../middlewares/user_middleware');
 
 router.get('/users', userController.getAllUsers);

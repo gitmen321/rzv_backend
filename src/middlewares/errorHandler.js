@@ -8,6 +8,19 @@ const erroHandler = (err, req, res, next) => {
 
     }
 
+    if (err.message == "INVALID_CREDENTIALS") {
+        return res.status(400).json({
+            message: err.message
+        });
+
+    }
+
+    if (err.message == "EMAIL_OR_PASSWORD_REQUIRED") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
+
 
 
     if (err.name === "DB_ERROR" || err.name === "MongooseError" || err.name === " MongoError") {
