@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 class AuthServices {
     constructor(authRepository) {
@@ -20,9 +21,24 @@ class AuthServices {
 
         if (!isMatch) throw new Error("INVALID_CREDENTIALS");
 
+        const token = jwt.sign(
+            {
+                userId: user._id,
+                email: user.email
+            },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: process.env.JWT_EXPIRES_IN
+            }
+        );
+
         user.password = undefined;
 
-        return user;
+        return {
+            token,
+            user
+            
+        };
     };
 };
 

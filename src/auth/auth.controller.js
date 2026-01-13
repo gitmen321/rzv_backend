@@ -1,4 +1,3 @@
-const User = require('../models/User');
 const authRepository = require('./auth.repository');
 const AuthServices = require('./auth.service');
 
@@ -10,8 +9,8 @@ exports.loginValidation = async (req, res, next) => {
         const { email, password } = req.body;
         const loginUser = await authServices.loginService(email, password);
         res.status(200).json({
-            User: loginUser,
-            message: "User is valid"
+            message: "login successful",
+            User: loginUser
         });
 
     } catch (err) {
@@ -21,3 +20,10 @@ exports.loginValidation = async (req, res, next) => {
     };
 
 };
+
+  exports.getProfile = (req, res) => {
+    res.status(200).json({
+        message : "profile accessed successfully",
+        user: req.user
+    });
+}
