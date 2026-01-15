@@ -21,10 +21,14 @@ class AuthServices {
 
         if (!isMatch) throw new Error("INVALID_CREDENTIALS");
 
+        console.log('ROLE FROM DB:', user.role);
+
         const token = jwt.sign(
             {
-                userId: user._id,
-                email: user.email
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                
             },
             process.env.JWT_SECRET,
             {

@@ -22,6 +22,14 @@ exports.getAllUsers = async (req, res, next) => {
     }
 };
 
+exports.userProfile = async (req, res) => {
+    res.status(200).json({
+        message: "Profile accessed successfully",
+        user: req.user,
+    });
+
+};
+
 exports.countUsers = async (req, res) => {
     const usersCount = await userService.countUser();
     res.status(200).json({
@@ -81,6 +89,8 @@ exports.updateUsers = async (req, res, next) => {
     try {
         const id = req.params.id;
         const updatedData = req.body;
+        console.log(updatedData, "id:", id);
+
 
         const updatedUser = await userService.updateUser(id, updatedData);
 

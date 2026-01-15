@@ -7,6 +7,11 @@ const erroHandler = (err, req, res, next) => {
         });
 
     }
+    if (err.message == "INACTIVE_USER") {
+        return res.status(403).json({
+            message: err.message
+        });
+    };
 
     if (err.message == "INVALID_CREDENTIALS") {
         return res.status(400).json({

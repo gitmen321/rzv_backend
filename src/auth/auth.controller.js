@@ -21,9 +21,8 @@ exports.loginValidation = async (req, res, next) => {
 
 };
 
-  exports.getProfile = (req, res) => {
-    res.status(200).json({
-        message : "profile accessed successfully",
-        user: req.user
-    });
-}
+//   exports.getProfile = (req, res) => {
+//     res.status(200).json({
+//         message : "profile accessed successfully",
+//         user: req.user
+//     });

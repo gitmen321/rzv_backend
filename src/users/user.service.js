@@ -82,6 +82,7 @@ class UserServices {
             throw new Error("EMAIL_ALREADY_EXISTS");
 
         }
+        
         return await this.userRepository.create({ name, age, email, password });
     };
 
@@ -92,6 +93,7 @@ class UserServices {
         delete updatedData.email;
         delete updatedData.password;
         const updatedUser = await this.userRepository.update(id, updatedData);
+        console.log('updated user:', updatedUser);
 
         if (!updatedUser) {
             throw new Error("USER_NOT_FOUND");
