@@ -34,7 +34,7 @@ const isAuthenticated = async (req, res, next) => {
             });
         }
 
-        req.user = decoded;
+        req.user = user;
         console.log("requested usser:", req.user);
 
         if (!req.user || !req.user.id) {
