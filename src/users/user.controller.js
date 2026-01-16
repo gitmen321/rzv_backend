@@ -4,6 +4,23 @@ const userRepository = require('./user.repositories');
 const userService = new UserServices(userRepository);
 
 
+exports.currentMe = async (req, res, next) => {
+
+    try {
+
+        const id = req.user.id;
+        const meDetails = await userService.getUserById(id);
+
+        return res.status(200).json({
+            message: "Current user details:",
+            user: meDetails
+        });
+
+    } catch (err) {
+        next(err)
+    }
+};
+
 exports.getAllUsers = async (req, res, next) => {
 
     try {
@@ -41,7 +58,8 @@ exports.countUsers = async (req, res) => {
 exports.getUserById = async (req, res, next) => {
 
     try {
-        const id = req.params.id;
+        // const id = req.params.id;
+        console.log("id:", id);
         const user = await userService.getUserById(id);
         res.status(200).json(user);
     }

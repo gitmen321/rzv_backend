@@ -1,5 +1,12 @@
+const { Admin } = require("mongodb");
+
 module.exports = {
-    
+
+    ROLE: {
+        ADMIN: 'admin',
+        USER: 'user',
+    },
+
     AUTH_ERRORS: {
         UNAUTHORIZED: 'UNAUTHORIZED',
         FORBIDDEN: "FORBIDDEN",

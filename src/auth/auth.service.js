@@ -8,14 +8,14 @@ class AuthServices {
 
     async loginService(email, password) {
 
-
+        
         if (!email || !password) {
-            throw new Error("EMAIL_OR_PASSWORD_REQUIRED");
+            throw new Error("INVALID_CREDENTIALS");
         }
 
         const user = await this.authRepository.findByEmailWithPass(email);
 
-        if (!user) throw new Error("INVALID_CREDENTIALS");
+        if (!user) throw new Error("USER_NOT_EXISTED");
 
         const isMatch = await bcrypt.compare(password, user.password);
 

@@ -3,21 +3,17 @@ const { AUTH_ERRORS } = require('../constants/auth.constants');
 
 const authorizeRole = (...allowedRoles) => {
     return (req, res, next) => {
-        try {
-            if (!allowedRoles.includes(req.user.role)) {
-                return res.status(403).json({
-                    message: AUTH_ERRORS.FORBIDDEN
-                });
-            }
-            next();
+        if (!req.user || !req.user.role) {
+            return res.status(401).json({
+                message: AUTH_ERRORS.UNAUTHORIZED
+            });
         }
-        catch (err) {
-            console.log(err);
+        if (!allowedRoles.includes(req.user.role)) {
             return res.status(403).json({
                 message: AUTH_ERRORS.FORBIDDEN
             });
-
         }
+        next();
     };
 };
 

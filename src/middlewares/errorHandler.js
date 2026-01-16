@@ -1,10 +1,17 @@
 const erroHandler = (err, req, res, next) => {
     console.error(err.stack);
 
+    if (err.message == "USER_NOT_EXISTED") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
+
     if (err.name == "ValidationError") {
         return res.status(400).json({
             message: err.message
         });
+
 
     }
     if (err.message == "INACTIVE_USER") {
@@ -19,13 +26,6 @@ const erroHandler = (err, req, res, next) => {
         });
 
     }
-
-    if (err.message == "EMAIL_OR_PASSWORD_REQUIRED") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
-
 
 
     if (err.name === "DB_ERROR" || err.name === "MongooseError" || err.name === " MongoError") {
