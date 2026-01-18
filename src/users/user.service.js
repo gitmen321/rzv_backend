@@ -2,10 +2,15 @@
 // Encapsulation: keeping data + logic together, and hiding internal state, eg: repository is inside the user services, controll cannot access it, can't call repository directly
 
 
+
+const mongoose = require('mongoose');
+
+
 class UserServices {
 
-    constructor(userRepository) {
+    constructor(userRepository, walletRepository) {
         this.userRepository = userRepository;
+        this.walletRepository = walletRepository;
     }
 
 
@@ -82,9 +87,29 @@ class UserServices {
             throw new Error("EMAIL_ALREADY_EXISTS");
 
         }
+
+        const session = await mongoose.startSession();
+        try{
+                session.startTransaction();
         
-        return await this.userRepository.create({ name, age, email, password });
-    };
+
+        const createdUser = await this.userRepository.create({ name, age, email, password },
+            session,
+        );
+        
+        await this.walletRepository.createWallet(createdUser.id, 0, session);
+        
+        await session.commitTransaction();
+        return createdUser;
+    } catch (err) {
+        await session.abortTransaction();
+        throw(err)
+    }
+    finally{
+        await session.endSession();
+    }
+}
+
 
 
 
@@ -114,7 +139,7 @@ class UserServices {
         return await this.userRepository.findCountDocs({});
     }
 
-    
+
 
 }
 module.exports = UserServices;  

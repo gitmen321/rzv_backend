@@ -1,7 +1,11 @@
 const UserServices = require('./user.service');
-const userRepository = require('./user.repositories');
+const UserRepository = require('../repositories/user.repositories');
+const WalletRepository = require('../repositories/wallet.repository');
 
-const userService = new UserServices(userRepository);
+const walletRepository = new WalletRepository();
+const userRepository = new UserRepository();
+const userService = new UserServices(userRepository, walletRepository);
+
 
 
 exports.currentMe = async (req, res, next) => {

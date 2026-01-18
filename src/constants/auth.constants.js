@@ -1,4 +1,3 @@
-const { Admin } = require("mongodb");
 
 module.exports = {
 

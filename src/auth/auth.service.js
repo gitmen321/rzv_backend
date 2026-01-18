@@ -2,13 +2,14 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 class AuthServices {
-    constructor(authRepository) {
-        this.authRepository = authRepository
+    constructor(authRepository, rewardServices) {
+        this.authRepository = authRepository,
+            this.rewardServices = rewardServices
     }
 
     async loginService(email, password) {
 
-        
+
         if (!email || !password) {
             throw new Error("INVALID_CREDENTIALS");
         }
@@ -28,7 +29,7 @@ class AuthServices {
                 id: user._id,
                 email: user.email,
                 role: user.role,
-                
+
             },
             process.env.JWT_SECRET,
             {
@@ -36,12 +37,14 @@ class AuthServices {
             }
         );
 
+        await this.rewardServices.dailyLoginReward(user);
+
         user.password = undefined;
 
         return {
             token,
             user
-            
+
         };
     };
 };

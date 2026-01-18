@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { AUTH_ERRORS } = require('../constants/auth.constants');
-const userRespository = require('../users/user.repositories');
+const userRespository = require('../repositories/user.repositories');
 
 const isAuthenticated = async (req, res, next) => {
 
