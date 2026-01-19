@@ -30,8 +30,34 @@ const isValid = (req, res, next) => {
 
 };
 
+const passwordConfirmation = (req, res, next) => {
+    const { password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+        console.log('password not verified');
+        return res.status(400).json({
+            message: "PASSWORD_MISMATCH"
+        });
+    }
+    next();
+}
+
+const validateEmail = (req, res, next) => {
+    const { email } = req.body;
+    const emailRegrex = /^\S+@\S+\.\S+$/;
+
+    if (!emailRegrex.test(email)) {
+        return res.status(400).json({
+            message: "INVALID_EMAIL_FORMAT"
+        });
+    }
+    next();
+}
+
+
+
 const validateName = (req, res, next) => {
-    const { name } = req.params;
+    const { name } = req.body;
 
     if (!name) {
         return res.status(400).json({
@@ -63,4 +89,4 @@ const validateObjectId = (req, res, next) => {
     next();
 }
 
-module.exports = { isValid, validateObjectId, validateName };
+module.exports = { isValid, validateObjectId, validateName, passwordConfirmation, validateEmail };

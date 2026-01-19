@@ -49,7 +49,7 @@ const erroHandler = (err, req, res, next) => {
             return res.status(404).json({
                 message: "User not found"
             });
-        case "EMAIL_ALREADY_EXISTS":
+        case "EMAIL_ALREADY_REGISTERED":
             return res.status(409).json({
                 message: "Email already exists"
             });

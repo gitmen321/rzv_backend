@@ -1,10 +1,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 class AuthServices {
-    constructor(authRepository, rewardServices) {
+    constructor(authRepository, rewardServices, userRepository, walletRepository) {
         this.authRepository = authRepository,
-            this.rewardServices = rewardServices
+            this.rewardServices = rewardServices,
+            this.userRepository = userRepository,
+            this.walletRepository = walletRepository
     }
 
     async loginService(email, password) {
@@ -47,6 +50,40 @@ class AuthServices {
 
         };
     };
+    async register(newUser) {
+        const { email, name, password } = newUser;
+
+        const existingEmail = await this.userRepository.findByEmail(email);
+
+        if (existingEmail) {
+            throw new Error("EMAIL_ALREADY_REGISTERED");
+        };
+
+        const session = await mongoose.startSession();
+
+        try {
+            session.startTransaction();
+
+
+            const newUser = await this.userRepository.create({ email, password, name }, session);
+
+            await this.walletRepository.createWallet(newUser.id, 0, session);
+
+            await session.commitTransaction();
+
+
+            newUser.password = undefined;
+            console.log('Registered user:', newUser);
+            return newUser;
+
+        } catch (err) {
+            await session.abortTransaction();
+            throw (err);
+        }
+        finally {
+            await session.endSession();
+        }
+    }
 };
 
 module.exports = AuthServices;

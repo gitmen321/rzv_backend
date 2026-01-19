@@ -84,7 +84,7 @@ class UserServices {
 
 
         if (existingEmail) {
-            throw new Error("EMAIL_ALREADY_EXISTS");
+            throw new Error("EMAIL_ALREADY_REGISTERED");
 
         }
 
@@ -103,7 +103,7 @@ class UserServices {
         return createdUser;
     } catch (err) {
         await session.abortTransaction();
-        throw(err)
+        throw(err);
     }
     finally{
         await session.endSession();

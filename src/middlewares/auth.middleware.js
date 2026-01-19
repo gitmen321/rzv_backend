@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { AUTH_ERRORS } = require('../constants/auth.constants');
-const userRespository = require('../repositories/user.repositories');
+const UserRespository = require('../repositories/user.repositories');
+
+const userRepository = new UserRespository();
 
 const isAuthenticated = async (req, res, next) => {
 
@@ -20,7 +22,7 @@ const isAuthenticated = async (req, res, next) => {
         const token = authHeader.split(" ")[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await userRespository.findById(decoded.id);
+        const user = await userRepository.findById(decoded.id);
 
         if (!user) {
             return res.status(401).json({
@@ -46,6 +48,7 @@ const isAuthenticated = async (req, res, next) => {
         next();
 
     } catch (err) {
+        console.log('error is:', err);
         return res.status(401).json({
             message: AUTH_ERRORS.INVALID_TOKEN,
         });
