@@ -1,6 +1,13 @@
 const erroHandler = (err, req, res, next) => {
     console.error(err.stack);
 
+    if (err.message == "INVALID_REFRESH_TOKEN") {
+        return res.status(400).json({
+            message: err.message
+        });
+
+    }
+
     if (err.message == "USER_NOT_EXISTED") {
         return res.status(400).json({
             message: err.message

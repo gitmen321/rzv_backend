@@ -1,26 +1,45 @@
-const mongoose = require('mongoose');
-
+const RefreshToken = require('../models/RefreshToken');
+require('../models/User');
 class RefreshTokenRepository {
-    constructor(parameters) {
-        
+    async create({ userId, token, expiresAt }, session = null) {
+        try {
+            const refreshTokenSchema = new RefreshToken({
+                user: userId,
+                token: token,
+                expiresAt: expiresAt
+            });
+
+            return await refreshTokenSchema.save();
+
+        } catch (err) {
+            console.log('error:', err);
+            throw err;
+        }
     }
 
-    async create ({userId, token, expiresAt }, session = null){
+    async validToken(token) {
 
-
-    }
-
-    async validToken (token){
-
+        return await RefreshToken.findOne({
+            token: token,
+            revoked: false,
+            expiresAt: { $gt: new Date() }
+        }).populate('user');
     };
 
-    async revokeToken(token){
+    async revokeToken(token) {
+        return await RefreshToken.updateOne(
+            { token: token },
+            { $set: { revoked: true } }
+        );
+    };
+
+    async revokeAllByUser(userId) {
+        return await RefreshToken.updateMany(
+            { user: userId, revoked: false },
+            { $set: { revoked: true } }
+        );
 
     };
-    async revokeAllByUser(userId){
-
-    };
-
 }
 
 module.exports = RefreshTokenRepository;
