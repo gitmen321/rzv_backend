@@ -26,6 +26,11 @@ class UserRepository {
         return await User.findOne({ _id: id, isActive: true });
     };
 
+
+    async findbyIdAdmin(id) {
+        return await User.findById(id);
+    }
+
     async findByName(name) {
         return await User.findOne({ name: name, isActive: true });
     };
@@ -44,6 +49,14 @@ class UserRepository {
 
             throw err;
         }
+    };
+
+    async updateStatusByAdmin(id, isActive) {
+        return await User.findByIdAndUpdate(
+            id,
+            { isActive },
+            { new: true }
+        );
     };
 
 

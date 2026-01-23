@@ -22,7 +22,7 @@ class AuthServices {
 
         const user = await this.authRepository.findByEmailWithPass(email);
 
-        if (!user) throw new Error("USER_NOT_EXISTED");
+        if (!user || !user.isActive) throw new Error("USER_NOT_EXISTED");
 
         const isMatch = await bcrypt.compare(password, user.password);
 

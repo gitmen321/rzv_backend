@@ -62,7 +62,7 @@ exports.countUsers = async (req, res) => {
 exports.getUserById = async (req, res, next) => {
 
     try {
-        // const id = req.params.id;
+        const id = req.params.id;
         console.log("id:", id);
         const user = await userService.getUserById(id);
         res.status(200).json(user);
