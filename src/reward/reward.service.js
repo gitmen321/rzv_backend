@@ -1,4 +1,3 @@
-const e = require('express');
 const { REWARD_AMOUNTS, REWARD_REASON } = require('../constants/reward.constants');
 const mongoose = require('mongoose');
 
@@ -32,7 +31,7 @@ class RewardServices {
             await this.walletRepository.incrementBalance(userId, amount, session);
             await this.tokenTransactionRepository.createTransaction({
                 user: userId,
-                type: 'earn',
+                type: 'CREDIT',
                 amount,
                 reason,
                 source: 'reward'

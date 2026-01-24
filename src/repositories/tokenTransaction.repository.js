@@ -1,5 +1,4 @@
 const TokenTransaction = require('../models/TokenTransaction');
-const mongoose = require('mongoose');
 
 class TokenTransactionRepository {
 
@@ -48,5 +47,6 @@ class TokenTransactionRepository {
         const transaction = new TokenTransaction(data);
         return transaction.save({ session });
     }
+    
 }
 module.exports = TokenTransactionRepository;

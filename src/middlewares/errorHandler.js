@@ -17,6 +17,23 @@ const erroHandler = (err, req, res, next) => {
             message: err.message
         });
     }
+    if (err.message === "Type must be credit or debit") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
+    if (err.message === "AMOUNT_SHOULDBE_GREATER_THAN_ZERO") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
+    if (err.message === "INSUFFICIENT_BALANCE") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
+
+
 
     if (err.message == "USER_NOT_EXISTED") {
         return res.status(400).json({

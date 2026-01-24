@@ -69,5 +69,24 @@ exports.updateUserStatus = async (req, res, next) => {
     };
 };
 
+exports.adjustWalletBalance = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { amount, type, reason } = req.body;
+        console.log("userId:", id);
+
+        const result = await adminServices.adjustWalletBalance(id, amount, type, reason);
+        const message = type === "CREDIT" ? "WALLET_CREDITED" : "WALLET_DEBITED";
+        console.log("message:", message);
+
+        res.status(200).json({
+            message: message,
+            ...result
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 

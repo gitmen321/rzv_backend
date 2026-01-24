@@ -1,3 +1,4 @@
+const wallet = require('../models/wallet');
 const Wallet = require('../models/wallet');
 const mongoose = require('mongoose');
 
@@ -38,7 +39,29 @@ class WalletRepository {
             }
         );
     }
-};
+
+    async creditBalance(userId, amount, session = null) {
+
+        return this.incrementBalance(userId, amount, session);
+
+    }
+
+    async debitBalance(userId, amount, session = null) {
+        return Wallet.findOneAndUpdate(
+            {
+                user: userId,
+                balance: { $gte: amount }
+            },
+            {
+                $inc: { balance: -amount }
+            },
+            {
+                new: true,
+                session
+            }
+        );
+    };
+}
 
 module.exports = WalletRepository;
 

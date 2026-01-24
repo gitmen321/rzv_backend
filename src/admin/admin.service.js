@@ -1,4 +1,5 @@
 
+const mongoose = require('mongoose');
 
 
 class AdminServices {
@@ -70,7 +71,12 @@ class AdminServices {
 
         return {
             data: {
-                user,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isActive: user.isActive
+                },
                 wallet,
                 transactions
             },
@@ -95,6 +101,69 @@ class AdminServices {
             throw new Error("USER_NOT_FOUND");
         }
         return user;
+    }
+
+    async adjustWalletBalance(userId, amount, type, reason) {
+        if (type !== 'DEBIT' && type !== 'CREDIT') {
+            throw new Error("Type must be credit or debit");
+        }
+        if (!amount > 0) throw new Error("AMOUNT_SHOULDBE_GREATER_THAN_ZERO");
+
+        const user = await this.userRepository.findByIdAdmin(userId);
+
+        if (!user) {
+            throw new Error("USER_NOT_FOUND");
+        }
+
+        const session = await mongoose.startSession();
+
+        try {
+
+            session.startTransaction();
+            let updatedWallet;
+
+            if (type === "CREDIT") {
+                updatedWallet = await this.walletRepository.creditBalance(userId, amount, session);
+
+            }
+            else if (type === "DEBIT") {
+                updatedWallet = await this.walletRepository.debitBalance(userId, amount, session);
+            }
+
+            if (updatedWallet === null) throw new Error("INSUFFICIENT_BALANCE");
+
+            const transactionInfo = await this.tokenTransactionRepository.createTransaction({
+                user: userId,
+                type,
+                amount,
+                reason,
+                source: 'admin'
+            },
+                session
+            );
+            await session.commitTransaction();
+            console.log('user:', user);
+
+            return {
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    isActive: user.isActive
+                },
+                updatedWallet,
+                transactionInfo
+            }
+
+        } catch (err) {
+            if (session.inTransaction()) {
+                await session.abortTransaction();
+            }
+            throw err;
+        }
+        finally {
+            session.endSession();
+        }
     }
 };
 

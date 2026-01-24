@@ -9,7 +9,7 @@ const TokenTransactionSchema = mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ['earn', 'spend'],
+            enum: ['CREDIT', 'DEBIT'],
             required: true
         },
         amount: {
