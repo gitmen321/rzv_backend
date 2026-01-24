@@ -27,7 +27,7 @@ class UserRepository {
     };
 
 
-    async findbyIdAdmin(id) {
+    async findByIdAdmin(id) {
         return await User.findById(id);
     }
 

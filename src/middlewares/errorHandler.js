@@ -5,7 +5,17 @@ const erroHandler = (err, req, res, next) => {
         return res.status(400).json({
             message: err.message
         });
+    }
+    if (err.message == "CURRENT_STATUS_IS_SAME") {
+        res.status(409).json({
+            message: err.message
+        });
+    }
 
+    if (err.message === "isActive must be true or false") {
+        return res.status(400).json({
+            message: err.message
+        });
     }
 
     if (err.message == "USER_NOT_EXISTED") {

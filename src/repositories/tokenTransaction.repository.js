@@ -20,7 +20,7 @@ class TokenTransactionRepository {
             23, 59, 59, 999
         ));
 
-        return  TokenTransaction.findOne(
+        return TokenTransaction.findOne(
             {
                 user: userId,
                 reason,
@@ -30,9 +30,23 @@ class TokenTransactionRepository {
             { session }
         );
     }
+
+    async findByUserId(userId, { page, limit, skip }, session = null) {
+        let query = TokenTransaction.find({ user: userId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        if (session) {
+            query = query.session(session);
+        }
+        return query;
+    }
+
+
     async createTransaction(data, session = null) {
         const transaction = new TokenTransaction(data);
-        return  transaction.save({ session });
+        return transaction.save({ session });
     }
 }
 module.exports = TokenTransactionRepository;

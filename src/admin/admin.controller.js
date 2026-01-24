@@ -1,11 +1,15 @@
 
 const UserRepository = require('../repositories/user.repositories');
-const UserServices = require('../users/user.service');
 const AdminServices = require('./admin.service');
 
+const TokenTransactionRepository = require('../repositories/tokenTransaction.repository');
+const WalletRepository = require('../repositories/wallet.repository');
+
+const walletRepository = new WalletRepository();
+const tokenTransactionRepository = new TokenTransactionRepository();
 const userRepository = new UserRepository();
 
-const adminServices = new AdminServices(userRepository);
+const adminServices = new AdminServices(userRepository, walletRepository, tokenTransactionRepository);
 
 exports.getAllUsers = async (req, res, next) => {
     try {
@@ -35,6 +39,20 @@ exports.getUserById = async (req, res, next) => {
     }
 };
 
+exports.getUserWallet = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { pageNum, limitNum } = req.query;
+        const walletDetails = await adminServices.getUserWalletDetails(id, pageNum, limitNum);
+        res.status(200).json({
+            message: "USER_WALLET_DETAILS",
+            ...walletDetails
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 exports.updateUserStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -49,5 +67,7 @@ exports.updateUserStatus = async (req, res, next) => {
     } catch (err) {
         next(err);
     };
-}
+};
+
+
 
