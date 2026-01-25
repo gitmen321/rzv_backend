@@ -88,5 +88,19 @@ exports.adjustWalletBalance = async (req, res, next) => {
     }
 }
 
+exports.getWalletSummary = async (req, res, next) => {
+    try {
+        const  queryDate  = req.query.date;
+        const walletSummary = await adminServices.getWalletSummaryForAdmin(queryDate);
+        res.status(200).json({
+            message: "WALLET_SUMMARY",
+             ...walletSummary,
+        });
+
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 

@@ -1,5 +1,6 @@
 
 const mongoose = require('mongoose');
+const wallet = require('../models/wallet');
 
 
 class AdminServices {
@@ -33,16 +34,16 @@ class AdminServices {
 
         return {
             data: users,
+
             meta: {
-                meta: {
-                    page: pageNum,
-                    limit: limitNum,
-                    totalUsers,
-                    totalPages,
-                    hasNextPage,
-                    hasPrevPage,
-                }
+                page: pageNum,
+                limit: limitNum,
+                totalUsers,
+                totalPages,
+                hasNextPage,
+                hasPrevPage,
             }
+
         }
     };
 
@@ -164,6 +165,44 @@ class AdminServices {
         finally {
             session.endSession();
         }
+    };
+
+    async getWalletSummaryForAdmin(queryDate) {
+
+        const date = new Date(queryDate);
+        console.log(date);
+
+        const startOfDay = new Date(Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0, 0, 0, 0
+        ));
+
+        const endOfDay = new Date(Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            23, 59, 59, 999
+        ));
+
+        const walletDoc = await this.tokenTransactionRepository.transactionSummary(startOfDay, endOfDay);
+        const creditAmount = walletDoc.CREDIT.totalAmount;
+        console.log(creditAmount);
+        const debitAmount = walletDoc.DEBIT.totalAmount;
+        console.log(debitAmount);
+
+        const netAmount = creditAmount - debitAmount;
+
+        console.log("wallet documents:", walletDoc);
+        return {
+            data: walletDoc,
+            meta: {
+                Date: date,
+                netAmount
+            }
+
+        };
     }
 };
 

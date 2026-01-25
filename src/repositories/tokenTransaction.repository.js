@@ -47,6 +47,42 @@ class TokenTransactionRepository {
         const transaction = new TokenTransaction(data);
         return transaction.save({ session });
     }
-    
+
+    async transactionSummary(startOfDay, endOfDay, session = null) {
+        const result = await TokenTransaction.aggregate([
+
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lte: endOfDay
+                    }
+                }
+            },
+
+            {
+                $group: {
+                    _id: "$type",
+                    totalAmount: { $sum: "$amount" },
+                    transactionCount: { $sum: 1 }
+                }
+            }
+        ]).session(session);
+
+        const summary = {
+            CREDIT: { totalAmount: 0, count: 0 },
+            DEBIT: { totalAmount: 0, count: 0 },
+        };
+
+        for (const row of result) {
+            summary[row._id] = {
+                totalAmount: row.totalAmount,
+                count: row.transactionCount
+            };
+        }
+
+        return summary;
+    }
+
 }
 module.exports = TokenTransactionRepository;
