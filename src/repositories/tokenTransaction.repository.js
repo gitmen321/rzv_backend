@@ -84,5 +84,79 @@ class TokenTransactionRepository {
         return summary;
     }
 
+    async transactionSummaryInRange(startOfDate, endOfDate, pageNum, limitNum, skip, session = null) {
+        const transactionResult = await TokenTransaction.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startOfDate,
+                        $lte: endOfDate,
+                    }
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            },
+
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "user",
+                    foreignField: "_id",
+                    as: "userProfile"
+                }
+            },
+
+            { $unwind: "$userProfile" },
+
+            {
+                $project: {
+                    _id: 1,
+                    amount: 1,
+                    type: 1,
+                    reason: 1,
+                    source: 1,
+                    createdAt: 1,
+                    userName: "$userProfile.name",
+                    userEmail: "$userProfile.email"
+                }
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limitNum
+            }
+        ]).session(session);
+
+        return transactionResult;
+
+    }
+
+    async countTransactionsInRange(startOfDate, endOfDate) {
+
+        const result = await TokenTransaction.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startOfDate,
+                        $lte: endOfDate,
+                    }
+                }
+            },
+
+            {
+                $count: "totalCount"
+            }
+
+        ]);
+        console.log('totalrecords:', result.totalCount);
+
+        return result.length > 0 ? result[0].totalCount : 0;
+
+    }
+
 }
 module.exports = TokenTransactionRepository;

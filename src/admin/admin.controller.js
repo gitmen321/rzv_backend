@@ -90,16 +90,33 @@ exports.adjustWalletBalance = async (req, res, next) => {
 
 exports.getWalletSummary = async (req, res, next) => {
     try {
-        const  queryDate  = req.query.date;
+        const queryDate = req.query.date;
         const walletSummary = await adminServices.getWalletSummaryForAdmin(queryDate);
         res.status(200).json({
             message: "WALLET_SUMMARY",
-             ...walletSummary,
+            ...walletSummary,
         });
 
     } catch (err) {
         next(err);
     }
+}
+
+exports.getWalletSummaryInRange = async (req, res, next) => {
+
+    try {
+        const { start, end, page, limit } = req.query;
+
+        const transactionsByRange = await adminServices.getWalletSummaryInRange(start, end, page, limit);
+
+        return res.status(200).json({
+            message: "WALLET_TRANSACTIONS",
+            ...transactionsByRange
+        });
+    } catch (err) {
+        next(err);
+    }
+
 }
 
 

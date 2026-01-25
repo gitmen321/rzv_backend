@@ -89,9 +89,7 @@ class AdminServices {
     }
 
     async updateUserStatus(id, isActive) {
-        if (typeof isActive !== 'boolean') {
-            throw new Error("isActive must be true or false");
-        }
+
         const currentStatus = await this.userRepository.findByIdAdmin(id);
         if (currentStatus.isActive === isActive) {
             throw new Error('CURRENT_STATUS_IS_SAME');
@@ -105,10 +103,7 @@ class AdminServices {
     }
 
     async adjustWalletBalance(userId, amount, type, reason) {
-        if (type !== 'DEBIT' && type !== 'CREDIT') {
-            throw new Error("Type must be credit or debit");
-        }
-        if (!amount > 0) throw new Error("AMOUNT_SHOULDBE_GREATER_THAN_ZERO");
+
 
         const user = await this.userRepository.findByIdAdmin(userId);
 
@@ -172,6 +167,7 @@ class AdminServices {
         const date = new Date(queryDate);
         console.log(date);
 
+
         const startOfDay = new Date(Date.UTC(
             date.getUTCFullYear(),
             date.getUTCMonth(),
@@ -203,6 +199,55 @@ class AdminServices {
             }
 
         };
+    }
+
+    async getWalletSummaryInRange(start, end, page, limit) {
+
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const pageNum = Number(page) || 1;
+        const limitNum = Number(limit) || 10;
+        const skip = (pageNum - 1) * limitNum;
+
+
+        const startOfDate = new Date(Date.UTC(
+            startDate.getUTCFullYear(),
+            startDate.getUTCMonth(),
+            startDate.getUTCDate(),
+            0, 0, 0, 0
+        ));
+
+        const endOfDate = new Date(Date.UTC(
+            endDate.getUTCFullYear(),
+            endDate.getUTCMonth(),
+            endDate.getUTCDate(),
+            23, 59, 59, 999
+        ));
+
+        const 
+        
+        
+        
+        
+        
+        transactions = await this.tokenTransactionRepository.transactionSummaryInRange(startOfDate, endOfDate, pageNum, limitNum, skip);
+        const totalRecords = await this.tokenTransactionRepository.countTransactionsInRange(startOfDate, endOfDate);
+
+        const totalPages = Math.ceil(totalRecords / limitNum);
+        const hasNextPage = pageNum < totalPages;
+        const hasPrevPage = pageNum > 1;
+
+        return {
+            data: transactions,
+            meta: {
+                page: pageNum,
+                limit: limitNum,
+                totalRecords,
+                totalPages,
+                hasNextPage,
+                hasPrevPage
+            }
+        }
     }
 };
 

@@ -11,24 +11,10 @@ const erroHandler = (err, req, res, next) => {
             message: err.message
         });
     }
-
-    if (err.message === "isActive must be true or false") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
-    if (err.message === "Type must be credit or debit") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
-    if (err.message === "AMOUNT_SHOULDBE_GREATER_THAN_ZERO") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
+    
+    
     if (err.message === "INSUFFICIENT_BALANCE") {
-        return res.status(400).json({
+        return res.status(409).json({
             message: err.message
         });
     }
