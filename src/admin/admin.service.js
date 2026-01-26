@@ -224,13 +224,7 @@ class AdminServices {
             23, 59, 59, 999
         ));
 
-        const 
-        
-        
-        
-        
-        
-        transactions = await this.tokenTransactionRepository.transactionSummaryInRange(startOfDate, endOfDate, pageNum, limitNum, skip);
+        const transactions = await this.tokenTransactionRepository.transactionSummaryInRange(startOfDate, endOfDate, pageNum, limitNum, skip);
         const totalRecords = await this.tokenTransactionRepository.countTransactionsInRange(startOfDate, endOfDate);
 
         const totalPages = Math.ceil(totalRecords / limitNum);

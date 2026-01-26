@@ -152,7 +152,7 @@ class TokenTransactionRepository {
             }
 
         ]);
-        console.log('totalrecords:', result.totalCount);
+        console.log('totalrecords:', result[0].totalCount);
 
         return result.length > 0 ? result[0].totalCount : 0;
 
@@ -160,3 +160,4 @@ class TokenTransactionRepository {
 
 }
 module.exports = TokenTransactionRepository;
+ 
