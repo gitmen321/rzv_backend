@@ -294,3 +294,4 @@ Client errors → 400
 Server errors → 500
 
 Centralized error handling for consistency
+
