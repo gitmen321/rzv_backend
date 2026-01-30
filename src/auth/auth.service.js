@@ -45,6 +45,9 @@ class AuthServices {
             expiresAt
         });
 
+        await this.rewardServices.dailyLogin(user);
+        user.password = undefined;
+
         return {
             accessToken,
             refreshToken: refreshTokenValue

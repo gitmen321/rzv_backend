@@ -1,7 +1,7 @@
 
 const mongoose = require('mongoose');
 const wallet = require('../models/wallet');
-
+import createAuditLog from "../audit/audit.helper";
 
 class AdminServices {
     constructor(userRepository, walletRepository, tokenTransactionRepository) {
@@ -88,31 +88,38 @@ class AdminServices {
         };
     }
 
-    async updateUserStatus(id, isActive) {
+    async updateUserStatus(id, isActive, adminId) {
 
         const currentStatus = await this.userRepository.findByIdAdmin(id);
         if (currentStatus.isActive === isActive) {
             throw new Error('CURRENT_STATUS_IS_SAME');
         }
 
+        const oldValue = currentStatus.isActive;
+a
         const user = await this.userRepository.updateStatusByAdmin(id, isActive);
         if (!user) {
             throw new Error("USER_NOT_FOUND");
         }
+
+        await createAuditLog({
+            adminId,
+            action: 'USER_STATUS_UPDATE',
+            targetedUserId: user.id,
+            oldValue: { isActive: oldValue },
+            newValue: { isActive }
+        });
         return user;
     }
 
     async adjustWalletBalance(userId, amount, type, reason) {
 
-
         const user = await this.userRepository.findByIdAdmin(userId);
-
         if (!user) {
             throw new Error("USER_NOT_FOUND");
         }
 
         const session = await mongoose.startSession();
-
         try {
 
             session.startTransaction();

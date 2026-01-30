@@ -55,11 +55,12 @@ exports.getUserWallet = async (req, res, next) => {
 
 exports.updateUserStatus = async (req, res, next) => {
     try {
+        const adminId = req.user.id;
         const { id } = req.params;
         const { isActive } = req.body;
         console.log("status:", isActive);
 
-        const updatedUserStatus = await adminServices.updateUserStatus(id, isActive);
+        const updatedUserStatus = await adminServices.updateUserStatus(id, isActive, adminId);
         res.status(200).json({
             message: isActive ? "USER_ACTIVATED" : "USER_DEACTIVATED",
             user: updatedUserStatus
@@ -115,8 +116,8 @@ exports.getWalletSummaryInRange = async (req, res, next) => {
         });
     } catch (err) {
         next(err);
-    }
-
+    }                  
+    
 }
 
 
