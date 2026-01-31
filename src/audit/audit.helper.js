@@ -1,12 +1,15 @@
-import auditRepository from "./audit.repository";
+const AuditRepository = require('./audit.repository');
+const auditRepository = new AuditRepository();
 
-exports.createAuditLog = async ({
+
+const createAuditLog = async ({
     adminId,
     action,
     targetedUserId = null,
     oldValue = null,
     newValue = null,
-    req = null,
+    ipAddress = null,
+    userAgent = null,
     meta = {}
 }) => {
     try {
@@ -17,7 +20,8 @@ exports.createAuditLog = async ({
             targetedUserId,
             oldValue,
             newValue,
-            ipAddress: req?.ip || null,
+            ipAddress,
+            userAgent,
             meta
         });
     } catch (err) {
@@ -25,3 +29,5 @@ exports.createAuditLog = async ({
         console.log('Audit Log failed:', err.message);
     }
 }
+
+module.exports = createAuditLog;

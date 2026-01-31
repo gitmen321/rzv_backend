@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { generateAccesToken, generateRefreshToken } = require('../utils/token');
 const RefreshTokenRepository = require('../repositories/refreshToken.repository');
+const auditLogs = require('../audit/audit.helper');
 
 class AuthServices {
     constructor(authRepository, rewardServices, userRepository, walletRepository) {
@@ -13,12 +14,7 @@ class AuthServices {
         this.refreshTokenRepository = new RefreshTokenRepository();
     }
 
-    async loginService(email, password) {
-
-
-        if (!email || !password) {
-            throw new Error("INVALID_CREDENTIALS");
-        }
+    async loginService(email, password, ip, userAgent) {
 
         const user = await this.authRepository.findByEmailWithPass(email);
 
@@ -45,8 +41,24 @@ class AuthServices {
             expiresAt
         });
 
-        await this.rewardServices.dailyLogin(user);
+
+        await this.rewardServices.dailyLoginReward(user);
         user.password = undefined;
+
+        if (user.role == 'admin') {
+            const adminId = user.id;
+            console.log('yes it is admin', adminId);
+            await auditLogs({
+                adminId,
+                action: "ADMIN_LOGIN",
+                ipAddress: ip,
+                userAgent: userAgent
+            });
+        }
+
+
+
+
 
         return {
             accessToken,
@@ -105,9 +117,22 @@ class AuthServices {
         }
     };
 
-    async logout(id) {
+    async logout(id, ip, userAgent, role) {
         try {
-            return await this.refreshTokenRepository.revokeAllByUser(id);
+
+            const loggedOut = await this.refreshTokenRepository.revokeAllByUser(id);
+
+            console.log('role:', role, 'id:', id);
+            if (role == 'admin') {
+                await auditLogs({
+                    adminId: id,
+                    action: 'ADMIN_LOGOUT',
+                    ipAddress: ip,
+                    userAgent: userAgent
+                });
+            }
+            return loggedOut;
+
 
         } catch (err) {
             throw new Error("Logout failed", err);

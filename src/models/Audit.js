@@ -5,7 +5,7 @@ const auditSchema = new mongoose.Schema(
         adminId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true.valueOf,
+            required: true,
             index: true
         },
         action: {
@@ -62,4 +62,4 @@ auditSchema.pre(['updateOne', 'findOneAndUpdate', 'deleteOne'],
     });
 
 const AuditLog = mongoose.model('AuditLog', auditSchema);
-export default AuditLog;
+module.exports = AuditLog;

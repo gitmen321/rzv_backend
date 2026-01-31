@@ -3,14 +3,14 @@ const router = express.Router();
 const validations = require('../middlewares/user_middleware');
 const isAuthenticated = require('../middlewares/auth.middleware');
 const rateLimit = require('../middlewares/rateLimit.middleware');
-
+const isLoginvalid = require('../middlewares/login_middleware');
 const authController = require('./auth.controller');
 
 router.post('/login', rateLimit({
     windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),
     maxRequests: Number(process.env.LOGIN_RATE_MAX),
     keyPrefix: "login"
-}), authController.loginValidation);
+}), isLoginvalid, authController.loginValidation);
 
 router.post('/register', rateLimit({
     windowSeconds: Number(process.env.REGISTER_RATE_WINDOW),

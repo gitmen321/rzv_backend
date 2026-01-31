@@ -56,6 +56,7 @@ exports.getUserWallet = async (req, res, next) => {
 exports.updateUserStatus = async (req, res, next) => {
     try {
         const adminId = req.user.id;
+        console.log(adminId);
         const { id } = req.params;
         const { isActive } = req.body;
         console.log("status:", isActive);
@@ -72,11 +73,13 @@ exports.updateUserStatus = async (req, res, next) => {
 
 exports.adjustWalletBalance = async (req, res, next) => {
     try {
+        const role = req.user.role;
+        const adminId = req.user.id;
         const { id } = req.params;
         const { amount, type, reason } = req.body;
         console.log("userId:", id);
 
-        const result = await adminServices.adjustWalletBalance(id, amount, type, reason);
+        const result = await adminServices.adjustWalletBalance(id, amount, type, reason, role, adminId);
         const message = type === "CREDIT" ? "WALLET_CREDITED" : "WALLET_DEBITED";
         console.log("message:", message);
 
@@ -116,8 +119,8 @@ exports.getWalletSummaryInRange = async (req, res, next) => {
         });
     } catch (err) {
         next(err);
-    }                  
-    
+    }
+
 }
 
 

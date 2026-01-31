@@ -18,13 +18,17 @@ exports.loginValidation = async (req, res, next) => {
     try {
 
         const { email, password } = req.body;
-        const loginUser = await authServices.loginService(email, password);
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        console.log('ipaddress:', ip, 'userAgent', userAgent);
+        const loginUser = await authServices.loginService(email, password, ip, userAgent);
         res.status(200).json({
             message: "login successful",
             User: loginUser
         });
 
     } catch (err) {
+        console.log('error:', err);
 
         next(err);
 
@@ -71,8 +75,15 @@ exports.register = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     try {
-        const id = req.user;
-        await authServices.logout(id);
+        const id = req.user.id;
+        const role = req.user.role;
+        console.log('role:', role);
+
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        console.log('ipaddress:', ip, 'userAgent', userAgent);
+
+        await authServices.logout(id, ip, userAgent, role);
 
         return res.status(200).json({
             message: "USER_LOGGED_OUT",
