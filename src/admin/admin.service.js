@@ -22,7 +22,7 @@ class AdminServices {
             filter.name = { $regex: searchQuery, $options: 'i' }
         };
 
-        const totalUsers = await this.userRepository.findCountDocs(filter);
+        const totalUsers = await this.userRepository.findActiveUsersCount(filter);
 
         const totalPages = Math.ceil(totalUsers / limitNum);
         const hasNextPage = pageNum < totalPages;
@@ -46,6 +46,27 @@ class AdminServices {
 
         }
     };
+
+    async getDashboardStatsForAdmin() {
+        const totalUsers = await this.userRepository.findCountDocs();
+        console.log('total users:', totalUsers);
+
+        const activeUsers = await this.userRepository.findActiveUsersCount();
+        console.log('Active Users:', activeUsers);
+
+        const newUserToday = await this.userRepository.countCreatedToday();
+        console.log('new users created today:', newUserToday);
+
+        const totalWalletBalance = await this.walletRepository.getTotalbalance();
+        console.log("total balance:", totalWalletBalance);
+
+        
+
+
+
+
+    }
+
 
     async getUsersByIdForAdmin(id) {
         const userById = await this.userRepository.findById(id);

@@ -28,7 +28,7 @@ class UserServices {
             filter.name = { $regex: searchQuery, $options: 'i' }
         };
 
-        const totalUsers = await this.userRepository.findCountDocs(filter);
+        const totalUsers = await this.userRepository.findActiveUsersCount(filter);
         console.log('Totalusers:', totalUsers);
 
 

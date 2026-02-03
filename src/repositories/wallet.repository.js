@@ -17,6 +17,20 @@ class WalletRepository {
 
     };
 
+    async getTotalbalance() {
+        const result = await wallet.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalBalance: { $sum: "balance" }
+                }
+            }
+        ]);
+
+        const totalBalance = result.length > 0 ? result[0].totalBalance : 0;
+        return totalBalance;
+    }
+
     async findByUserId(userId, session = null) {
         let query = Wallet.findOne({ user: userId });
 

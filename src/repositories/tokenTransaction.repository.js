@@ -30,6 +30,23 @@ class TokenTransactionRepository {
         );
     }
 
+    async getTodaySummary() {
+        const startOfDay = new Date();
+        startOfDay.setUTCHours(0, 0, 0, 0);
+
+        const stats = await TokenTransaction.aggregate([
+            {
+                $match: { createdAt: { $gte: startOfDay } }
+            },
+            {
+                $group:{
+                    _id: "$type",
+                    totalAmount: { $sum: "$amount"}
+                }
+            }
+        ]);
+    }
+
     async findByUserId(userId, { page, limit, skip }, session = null) {
         let query = TokenTransaction.find({ user: userId })
             .sort({ createdAt: -1 })
@@ -160,4 +177,3 @@ class TokenTransactionRepository {
 
 }
 module.exports = TokenTransactionRepository;
- 

@@ -11,17 +11,19 @@ app.set('trust proxy', true);
 const userRoutes = require('./users/user.routes');
 const authRoutes = require('./auth/auth.routes');
 const adminRoutes = require('./admin/admin.routes');
+const auditRoutes = require('./audit/audit.routes');
 
 app.use('/api', userRoutes);
 app.use('/api', authRoutes);
 app.use('/api', adminRoutes);
+app.use('/api', auditRoutes);
 
-app.get('health', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.status(200).json({
         message: "'Server is running",
-        Timestamp: new Date().toISOString()
+        Timestamp: new Date().toISOString(),
     });
-})
+});
 
 //error handler MUST be last
 const errorHandler = require('./middlewares/errorHandler');

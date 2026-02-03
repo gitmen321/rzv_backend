@@ -25,6 +25,18 @@ exports.getAllUsers = async (req, res, next) => {
     }
 };
 
+exports.getDashBoardStats = async (req, res, next) => {
+    try {
+        const stats = await adminServices.getDashboardStatsForAdmin();
+        res.status(200).json({
+            message: "DASHBOARD STATS",
+            ...stats
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 exports.getUserById = async (req, res, next) => {
     try {
         const { id } = req.params;

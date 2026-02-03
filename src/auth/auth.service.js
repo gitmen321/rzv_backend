@@ -156,7 +156,6 @@ class AuthServices {
         try {
             session.startTransaction();
 
-
             const newUser = await this.userRepository.create({ email, password, name }, session);
 
             await this.walletRepository.createWallet(newUser.id, 0, session);

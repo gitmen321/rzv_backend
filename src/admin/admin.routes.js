@@ -7,6 +7,9 @@ const adminController = require('../admin/admin.controller');
 const validations = require('../middlewares/admin.middleware');
 const rateLimit = require('../middlewares/rateLimit.middleware');
 
+
+router.get('/admin/dashboard/stats', isAuthenticated, authorizeRole(ROLE.ADMIN), adminController.getDashBoardStats);
+
 router.get('/admin/users', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit({
     windowSeconds: Number(process.env.ADMIN_RATE_WINDOW),
     maxRequests: Number(process.env.ADMIN_RATE_RATE),

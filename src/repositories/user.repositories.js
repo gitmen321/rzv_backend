@@ -6,7 +6,7 @@ class UserRepository {
     async findAll(page, limit, skip, sortField, sortOrder, filter) {
 
         console.log("Fetching user[repo]");
-        return await User.find({ isActive: true, ...filter }).skip(skip).limit(limit).sort({ [sortField]: sortOrder });
+        return await User.find({ ...filter }).skip(skip).limit(limit).sort({ [sortField]: sortOrder });
 
     };
 
@@ -18,8 +18,28 @@ class UserRepository {
 
 
     async findCountDocs(filter) {
-        return await User.countDocuments({ ...filter, isActive: true });
+        return await User.countDocuments({ ...filter });
     };
+
+    async findActiveUsersCount(filter) {
+        return await User.countDocuments({ isActive: true, ...filter });
+    }
+
+    async countCreatedToday() {
+        const startOfDay = new Date();
+        startOfDay.setUTCHours(0, 0, 0, 0);
+
+        const filter = {
+            createdAt: { $gte: startOfDay }
+        };
+
+        try {
+            return await User.countDocuments(filter);
+        } catch (err) {
+            console.error('error:', err);
+            throw err;
+        }
+    }
 
 
     async findById(id) {

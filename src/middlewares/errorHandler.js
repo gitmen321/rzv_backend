@@ -6,13 +6,18 @@ const erroHandler = (err, req, res, next) => {
             message: err.message
         });
     }
+    if (err.message == "ADMIN_REGISTRATION_DIABLED") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
     if (err.message == "CURRENT_STATUS_IS_SAME") {
         res.status(409).json({
             message: err.message
         });
     }
-    
-    
+
+
     if (err.message === "INSUFFICIENT_BALANCE") {
         return res.status(409).json({
             message: err.message
