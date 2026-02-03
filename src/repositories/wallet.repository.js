@@ -22,12 +22,13 @@ class WalletRepository {
             {
                 $group: {
                     _id: null,
-                    totalBalance: { $sum: "balance" }
+                    totalBalance: { $sum: "$balance" }
                 }
             }
         ]);
 
         const totalBalance = result.length > 0 ? result[0].totalBalance : 0;
+        console.log('total balance:', totalBalance);
         return totalBalance;
     }
 

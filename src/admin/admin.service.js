@@ -48,23 +48,33 @@ class AdminServices {
     };
 
     async getDashboardStatsForAdmin() {
-        const totalUsers = await this.userRepository.findCountDocs();
-        console.log('total users:', totalUsers);
 
-        const activeUsers = await this.userRepository.findActiveUsersCount();
-        console.log('Active Users:', activeUsers);
+        const [
+            totalUsers,
+            activeUsers,
+            newUserToday,
+            totalWalletBalance,
+            todayTransaction
+        ] = await Promise.all([
+            this.userRepository.findCountDocs(),
+            this.userRepository.findActiveUsersCount(),
+            this.userRepository.countCreatedToday(),
+            this.walletRepository.getTotalbalance(),
+            this.tokenTransactionRepository.getTodaySummary()
+        ]);
 
-        const newUserToday = await this.userRepository.countCreatedToday();
-        console.log('new users created today:', newUserToday);
-
-        const totalWalletBalance = await this.walletRepository.getTotalbalance();
-        console.log("total balance:", totalWalletBalance);
-
-        
-
-
-
-
+        return {
+            users: {
+                total: totalUsers,
+                active: activeUsers,
+                inActive: totalUsers - activeUsers,
+                newToday: newUserToday,
+            },
+            wallet: {
+                totalBalance: totalWalletBalance
+            },
+            transactionsToday: todayTransaction
+        };
     }
 
 

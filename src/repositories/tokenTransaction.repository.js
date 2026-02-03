@@ -30,7 +30,7 @@ class TokenTransactionRepository {
         );
     }
 
-    async getTodaySummary() {
+    async getTodaySummary(session = null) {
         const startOfDay = new Date();
         startOfDay.setUTCHours(0, 0, 0, 0);
 
@@ -39,13 +39,29 @@ class TokenTransactionRepository {
                 $match: { createdAt: { $gte: startOfDay } }
             },
             {
-                $group:{
+                $group: {
                     _id: "$type",
-                    totalAmount: { $sum: "$amount"}
+                    totalAmount: { $sum: "$amount" },
+                    transactionCount: { $sum: 1 }
                 }
             }
-        ]);
+        ]).session(session);
+
+        const todaySummary = {
+            CREDIT: { totalAmount: 0, count: 0 },
+            DEBIT: { totalAmount: 0, count: 0 },
+        };
+
+        for (const row of stats) {
+            todaySummary[row._id] = {
+                totalAmount: row.totalAmount,
+                count: row.transactionCount
+            };
+        }
+
+        return todaySummary;
     }
+
 
     async findByUserId(userId, { page, limit, skip }, session = null) {
         let query = TokenTransaction.find({ user: userId })
