@@ -19,4 +19,21 @@ exports.getAuditLogs = async (req, res, next) => {
         next(err);
     }
 
+};
+
+
+exports.getRecentActivites = async (req, res, next) => {
+    try {
+        const adminId = req.user.id;
+
+        const activities = await auditServices.getRecentActivities(adminId);
+
+        return res.status(200).json({
+            message: "RECENT_ACTIVITY",
+            data: activities
+        });
+
+    } catch (err) {
+        next(err);
+    }
 }

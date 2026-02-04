@@ -20,7 +20,11 @@ class AuditServices {
             limit: Number(limit),
         });
     }
-    
+
+    async getRecentActivities(adminId) {
+        return this.auditRepository.findRecentByAdmin(adminId);
+    }
+
 }
 
 module.exports = AuditServices;

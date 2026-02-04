@@ -36,6 +36,13 @@ class AuditRepository {
             }
         };
     }
+
+    async findRecentByAdmin(adminId, limit = 10) {
+        return AuditLog.find({ adminId })
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .lean();
+    }
 }
 
 module.exports = AuditRepository;
