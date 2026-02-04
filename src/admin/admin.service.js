@@ -1,6 +1,6 @@
 
 const mongoose = require('mongoose');
-const wallet = require('../models/wallet');
+// const wallet = require('../models/wallet');
 const createAuditLog = require('../audit/audit.helper');
 
 class AdminServices {
@@ -8,6 +8,10 @@ class AdminServices {
         this.userRepository = userRepository,
             this.walletRepository = walletRepository,
             this.tokenTransactionRepository = tokenTransactionRepository
+    }
+
+    async getCurrentDetails(id) {
+        return await this.userRepository.findById(id);
     }
 
     async getAllUsersForAdmin(query) {

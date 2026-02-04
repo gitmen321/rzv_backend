@@ -11,6 +11,21 @@ const userRepository = new UserRepository();
 
 const adminServices = new AdminServices(userRepository, walletRepository, tokenTransactionRepository);
 
+
+exports.getCurrentMe = async (req, res, next) => {
+    try {
+        const id = req.user.id;
+        const result = await adminServices.getCurrentDetails(id);
+
+        res.status(200).json({
+            message: "Current details",
+            data: result
+        });
+    } catch (err) {
+
+    }
+}
+
 exports.getAllUsers = async (req, res, next) => {
     try {
         const query = req.query;
