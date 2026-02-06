@@ -95,6 +95,18 @@ exports.logout = async (req, res, next) => {
 
 }
 
+exports.forgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        await authServices.forgotPassword(email);
+        res.status(200).json({
+            message: "Reset password Email sent"
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 
 

@@ -1,9 +1,11 @@
 const bcrypt = require('bcrypt');
 // const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const { generateAccesToken, generateRefreshToken } = require('../utils/token');
 const RefreshTokenRepository = require('../repositories/refreshToken.repository');
 const auditLogs = require('../audit/audit.helper');
+const sendEmail = require('../utils/sendEmail');
 
 class AuthServices {
     constructor(authRepository, rewardServices, userRepository, walletRepository) {
@@ -175,6 +177,34 @@ class AuthServices {
             await session.endSession();
         }
     };
+
+    async forgotPassword(email) {
+        const user = await this.userRepository.findByEmail(email);
+        if (!user) throw new Error("USER_NOT_FOUND");
+
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+
+        await user.save();
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${rawToken}`;
+
+        await sendEmail({
+            to: user.email,
+            subject: "Reset Your Password",
+            html: `
+            <h2>Password Reset request</h2>
+            <p>Click the link below to reset your password</p>
+            <a href="${resetLink}">${resetLink}</a>
+            <p>This link expires in 15 minutes.</p>
+            `
+        });
+        return { email: user.email, resetLink };
+
+    }
 
 };
 

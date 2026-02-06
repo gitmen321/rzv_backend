@@ -26,4 +26,6 @@ router.post('/refresh-token', rateLimit({
 
 router.post('/logout', isAuthenticated, authController.logout);
 
+router.post('/forgot-password', authController.forgotPassword);
+
 module.exports = router;

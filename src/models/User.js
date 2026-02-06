@@ -36,6 +36,12 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        resetPasswordToken: {
+            type: String
+        },
+        resetPasswordExpires: {
+            type: Date
+        },
 
     },
     {
@@ -43,21 +49,15 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-userSchema.pre('save', async function (next) {
-    const user = this;
+userSchema.pre('save', async function () {
 
-    if (!user.isModified('password')) {
-        return next();
+    if (!this.isModified('password')) {
+        return;
     }
-    try {
+    
         const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(user.password, salt);
-        user.password = hash;
-
-
-    } catch (err) {
-        next(err);
-    }
+        const hash = await bcrypt.hash(this.password, salt);
+        this.password = hash;
 });
 
 module.exports = mongoose.model('User', userSchema);
