@@ -14,6 +14,15 @@ class UserRepository {
         return await User.findOne({ email, isActive: true });
     };
 
+    async userByToken(hashedToken) {
+
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+        return user;
+    };
+
 
 
 

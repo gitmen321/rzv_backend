@@ -26,6 +26,12 @@ router.post('/refresh-token', rateLimit({
 
 router.post('/logout', isAuthenticated, authController.logout);
 
-router.post('/forgot-password', authController.forgotPassword);
+router.post('/forgot-password', rateLimit({
+    windowSeconds: Number(process.env.FORGOT_PASS_RATE_WINDOW),
+    maxRequests: Number(process.env.FORGOT_PASS_RATE_MAX),
+    keyPrefix: "forgotPassword"
+}), validations.forgotPasswordValidation, authController.forgotPassword);
+
+router.post('/reset-password/:token', validations.resetPasswordValidation, authController.resetPassword);
 
 module.exports = router;

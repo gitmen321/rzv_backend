@@ -45,6 +45,65 @@ const passwordConfirmation = (req, res, next) => {
             message: "PASSWORD_MISMATCH"
         });
     }
+
+    if (password.length < 8) {
+        return res.status(400).json({
+            message: "PASSWORD_TOO_SHORT"
+        });
+    }
+
+
+    next();
+}
+
+const forgotPasswordValidation = (req, res, next) => {
+    if (!req.body || req.body.email === undefined) {
+        return res.status(400).json({
+            message: "Email required"
+        });
+    }
+    const emailRegrex = /^\S+@\S+\.\S+$/;
+
+    if (!emailRegrex.test(req.body.email)) {
+        return res.status(400).json({
+            message: "INVALID_EMAIL_FORMAT"
+        });
+    }
+    next();
+}
+
+const resetPasswordValidation = (req, res, next) => {
+    const { newPassword, confirmPassword } = req.body;
+    if (!req.params.token) {
+        return res.status(400).json({
+            message: "Reset token is required"
+        });
+    }
+    if (req.params.token.length < 20) {
+        return res.status(400).json({
+            message: "INVALID_TOKEN_FORMAT"
+        });
+    }
+    if (!newPassword) {
+        return res.status(400).json({
+            message: "New Password required"
+        });
+    }
+    if (!confirmPassword) {
+        return res.status(400).json({
+            message: "Confirm Password required"
+        });
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({
+            message: "PASSWORD_MISMATCH"
+        });
+    }
+    if (newPassword.length < 8) {
+        return res.status(400).json({
+            message: "PASSWORD_TOO_SHORT"
+        });
+    }
     next();
 }
 
@@ -95,4 +154,4 @@ const validateObjectId = (req, res, next) => {
     next();
 }
 
-module.exports = { isValid, validateObjectId, validateName, passwordConfirmation, validateEmail };
+module.exports = { isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation };

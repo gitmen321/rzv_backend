@@ -206,6 +206,22 @@ class AuthServices {
 
     }
 
+    async resetPassword(token, newPassword) {
+
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+        const user = await this.userRepository.userByToken(hashedToken);
+        console.log("username;", user.name);
+        if (!user) {
+            throw new Error("TOKEN_INVALID_OR_EXPIRED");
+        }
+        user.password = newPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        console.log("Password updated successfully..", user.password);
+        return user;
+    }
+
 };
 
 module.exports = AuthServices;
