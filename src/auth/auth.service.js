@@ -6,6 +6,7 @@ const { generateAccesToken, generateRefreshToken } = require('../utils/token');
 const RefreshTokenRepository = require('../repositories/refreshToken.repository');
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
+const { error } = require('console');
 
 class AuthServices {
     constructor(authRepository, rewardServices, userRepository, walletRepository) {
@@ -180,7 +181,11 @@ class AuthServices {
 
     async forgotPassword(email) {
         const user = await this.userRepository.findByEmail(email);
-        if (!user) throw new Error("USER_NOT_FOUND");
+        if (!user) {
+            return {
+                message: "if thath email exists, reset link has been sent"
+            };
+        }
 
         const rawToken = crypto.randomBytes(32).toString("hex");
         const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
@@ -192,17 +197,28 @@ class AuthServices {
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${rawToken}`;
 
-        await sendEmail({
-            to: user.email,
-            subject: "Reset Your Password",
-            html: `
+        try {
+            await sendEmail({
+                to: user.email,
+                subject: "Reset Your Password",
+                html: `
             <h2>Password Reset request</h2>
             <p>Click the link below to reset your password</p>
             <a href="${resetLink}">${resetLink}</a>
             <p>This link expires in 15 minutes.</p>
             `
-        });
-        return { email: user.email, resetLink };
+            });
+            return { message: "Reset link sent successfully" };
+        } catch (err) {
+
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            await user.save();
+
+            const error = new Error("EMAIL_SEND_FAILED");
+            error.statusCode = 500;
+            throw error;
+        }
 
     }
 
@@ -210,16 +226,25 @@ class AuthServices {
 
         const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
         const user = await this.userRepository.userByToken(hashedToken);
-        console.log("username;", user.name);
+
         if (!user) {
-            throw new Error("TOKEN_INVALID_OR_EXPIRED");
+            const err = new Error("TOKEN_INVALID_OR_EXPIRED");
+            err.statusCode = 400;
+            console.log(err.name);
+            throw err;
         }
+        console.log("username;", user.name);
+
         user.password = newPassword;
+
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
+
         await user.save();
-        console.log("Password updated successfully..", user.password);
-        return user;
+        console.log("Password updated successfully..");
+        return {
+            message: "Password updated successfully"
+        }
     }
 
 };
