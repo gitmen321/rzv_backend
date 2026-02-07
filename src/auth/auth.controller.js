@@ -98,10 +98,8 @@ exports.logout = async (req, res, next) => {
 exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
-        await authServices.forgotPassword(email);
-        res.status(200).json({
-            message: "Reset password Email sent"
-        });
+        const result = await authServices.forgotPassword(email);
+        res.status(200).json(result);
     } catch (err) {
         next(err);
     }
@@ -111,11 +109,9 @@ exports.resetPassword = async (req, res, next) => {
     try {
         const token = req.params.token;
         const { newPassword } = req.body;
-        await authServices.resetPassword(token, newPassword);
+        const result = await authServices.resetPassword(token, newPassword);
 
-        res.status(200).json({
-            message: "Password updated successfully"
-        });
+        res.status(200).json(result);
 
     } catch (err) {
         console.log('reser password error:', err);

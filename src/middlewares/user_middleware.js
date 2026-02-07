@@ -62,9 +62,10 @@ const forgotPasswordValidation = (req, res, next) => {
             message: "Email required"
         });
     }
+    const cleanedEmail = req.body.email.trim().toLowerCase();
     const emailRegrex = /^\S+@\S+\.\S+$/;
 
-    if (!emailRegrex.test(req.body.email)) {
+    if (!emailRegrex.test(cleanedEmail)) {
         return res.status(400).json({
             message: "INVALID_EMAIL_FORMAT"
         });
@@ -76,7 +77,7 @@ const resetPasswordValidation = (req, res, next) => {
     const { newPassword, confirmPassword } = req.body;
     if (!req.params.token) {
         return res.status(400).json({
-            message: "Reset token is required"
+            message: "RESET_TOKEN_REQUIRED"
         });
     }
     if (req.params.token.length < 20) {
@@ -86,12 +87,12 @@ const resetPasswordValidation = (req, res, next) => {
     }
     if (!newPassword) {
         return res.status(400).json({
-            message: "New Password required"
+            message: "NEW_PASSWORD_REQUIRED"
         });
     }
     if (!confirmPassword) {
         return res.status(400).json({
-            message: "Confirm Password required"
+            message: "CONFIRM_PASSWORD_REQUIRED"
         });
     }
     if (newPassword !== confirmPassword) {
