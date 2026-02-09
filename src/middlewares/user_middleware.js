@@ -73,6 +73,21 @@ const forgotPasswordValidation = (req, res, next) => {
     next();
 }
 
+const emailVerifyValidation = (req, res, next) => {
+    if (!req.params.token) {
+        return res.status(400).json({
+            message: "RESET_TOKEN_REQUIRED"
+        });
+    }
+    if (req.params.token.length < 20) {
+        return res.status(400).json({
+            message: "INVALID_TOKEN_FORMAT"
+        });
+    }
+    next();
+
+}
+
 const resetPasswordValidation = (req, res, next) => {
     const { newPassword, confirmPassword } = req.body;
     if (!req.params.token) {
@@ -155,4 +170,4 @@ const validateObjectId = (req, res, next) => {
     next();
 }
 
-module.exports = { isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation };
+module.exports = { isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation, emailVerifyValidation };

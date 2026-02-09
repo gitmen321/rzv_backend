@@ -6,7 +6,7 @@ const { generateAccesToken, generateRefreshToken } = require('../utils/token');
 const RefreshTokenRepository = require('../repositories/refreshToken.repository');
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
-const { error } = require('console');
+
 
 class AuthServices {
     constructor(authRepository, rewardServices, userRepository, walletRepository) {
@@ -20,6 +20,9 @@ class AuthServices {
     async loginService(email, password, ip, userAgent) {
 
         const user = await this.authRepository.findByEmailWithPass(email);
+
+        if (!user.isEmailVerified) throw new Error("EMAIL_NOT_VERIFIED");
+
 
         if (!user || !user.isActive) throw new Error("USER_NOT_EXISTED");
 
@@ -58,10 +61,6 @@ class AuthServices {
                 userAgent: userAgent
             });
         }
-
-
-
-
 
         return {
             accessToken,
@@ -159,9 +158,25 @@ class AuthServices {
         try {
             session.startTransaction();
 
-            const newUser = await this.userRepository.create({ email, password, name }, session);
+            const newUser = await this.userRepository.create({ email, password, name, isEmailVerified: false, isActive: false }, session);
 
             await this.walletRepository.createWallet(newUser.id, 0, session);
+
+            const rawToken = newUser.createEmailVerificationToken();
+
+            await newUser.save({ session });
+
+            const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+            await sendEmail({
+                to: newUser.email,
+                subject: "Verify your email",
+                html: `
+                <h2>Email Verification</h2>
+                <p>Click below to verify:</p>
+                <a href="${verifyLink}">${verifyLink}</a>
+                <p>Expires in 15 minutes.</p>
+                `,
+            });
 
             await session.commitTransaction();
 
@@ -245,6 +260,30 @@ class AuthServices {
         return {
             message: "Password updated successfully"
         }
+    }
+
+    async verifyEmail(token) {
+
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        const user = await this.userRepository.userByEmailToken(hashedToken);
+
+        if (!user) {
+            const err = new Error("TOKEN_INVALID_OR_EXPIRED");
+            err.statusCode = 400;
+            console.log(err.name);
+            throw err;
+        }
+
+        user.isEmailVerified = true;
+        user.isActive = true;
+        user.emailVerifyToken = undefined;
+        user.emailVerifyExpires = undefined;
+
+        await user.save();
+
+        return user;
+
     }
 
 };

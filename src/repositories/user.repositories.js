@@ -23,6 +23,14 @@ class UserRepository {
         return user;
     };
 
+    async userByEmailToken(hashedToken) {
+        const user = await User.findOne({
+            emailVerifyToken: hashedToken,
+            emailVerifyExpires: { $gt: Date.now() }
+        });
+        return user;
+
+    }
 
 
 
@@ -71,7 +79,7 @@ class UserRepository {
         try {
             const user = new User({ name, age, email, password });
             console.log('repos try block');
-            return await user.save();
+            return await user.save({ session });
         }
         catch (err) {
             console.log("Actual error:", err);

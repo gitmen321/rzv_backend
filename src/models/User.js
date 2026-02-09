@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
     {
@@ -34,7 +35,7 @@ const userSchema = new mongoose.Schema(
         },
         isActive: {
             type: Boolean,
-            default: true,
+            default: false,
         },
         resetPasswordToken: {
             type: String
@@ -42,6 +43,16 @@ const userSchema = new mongoose.Schema(
         resetPasswordExpires: {
             type: Date
         },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
+        },
+        emailVerifyToken: {
+            type: String,
+        },
+        emailVerifyExpires: {
+            type: Date,
+        }
 
     },
     {
@@ -54,10 +65,22 @@ userSchema.pre('save', async function () {
     if (!this.isModified('password')) {
         return;
     }
-    
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(this.password, salt);
-        this.password = hash;
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(this.password, salt);
+    this.password = hash;
 });
+
+userSchema.methods.createEmailVerificationToken = function () {
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+
+    const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+    this.emailVerifyToken = hashedToken;
+    this.emailVerifyExpires = Date.now() + 15 * 60 * 1000;
+
+    return rawToken;
+}
+
 
 module.exports = mongoose.model('User', userSchema);

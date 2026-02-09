@@ -64,8 +64,8 @@ exports.register = async (req, res, next) => {
         const registeredUser = await authServices.register(newUser);
 
         res.status(201).json({
-            message: "Registered Successfully",
-            user: registeredUser
+            message: "Verification Email sent to your Email Address. Please verify your email to activate your account",
+            email: registeredUser.email
         });
 
     } catch (err) {
@@ -111,10 +111,25 @@ exports.resetPassword = async (req, res, next) => {
         const { newPassword } = req.body;
         const result = await authServices.resetPassword(token, newPassword);
 
-        res.status(200).json(result);
+        return res.status(200).json(result);
 
     } catch (err) {
         console.log('reser password error:', err);
+        next(err);
+    }
+}
+
+exports.verifyEmail = async (req, res, next) => {
+    try {
+        const token = req.params.token;
+        const result = await authServices.verifyEmail(token);
+
+        return res.status(200).json({
+            message: "Registration Successful",
+            ...result
+        });
+
+    } catch (err) {
         next(err);
     }
 }
