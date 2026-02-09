@@ -111,7 +111,9 @@ exports.resetPassword = async (req, res, next) => {
         const { newPassword } = req.body;
         const result = await authServices.resetPassword(token, newPassword);
 
-        return res.status(200).json(result);
+        res.status(200).json({
+            message: "Password updated successfully"
+        });
 
     } catch (err) {
         console.log('reser password error:', err);

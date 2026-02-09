@@ -7,7 +7,6 @@ const RefreshTokenRepository = require('../repositories/refreshToken.repository'
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
 
-
 class AuthServices {
     constructor(authRepository, rewardServices, userRepository, walletRepository) {
         this.authRepository = authRepository,
@@ -254,36 +253,9 @@ class AuthServices {
 
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
-
         await user.save();
-        console.log("Password updated successfully..");
-        return {
-            message: "Password updated successfully"
-        }
-    }
-
-    async verifyEmail(token) {
-
-        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-        const user = await this.userRepository.userByEmailToken(hashedToken);
-
-        if (!user) {
-            const err = new Error("TOKEN_INVALID_OR_EXPIRED");
-            err.statusCode = 400;
-            console.log(err.name);
-            throw err;
-        }
-
-        user.isEmailVerified = true;
-        user.isActive = true;
-        user.emailVerifyToken = undefined;
-        user.emailVerifyExpires = undefined;
-
-        await user.save();
-
+        console.log("Password updated successfully..", user.password);
         return user;
-
     }
 
 };
