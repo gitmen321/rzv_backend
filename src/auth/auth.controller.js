@@ -128,7 +128,7 @@ exports.verifyEmail = async (req, res, next) => {
 
         return res.status(200).json({
             message: "Registration Successful",
-            ...result
+            result: result
         });
 
     } catch (err) {
