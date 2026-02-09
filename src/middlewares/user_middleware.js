@@ -125,6 +125,12 @@ const resetPasswordValidation = (req, res, next) => {
 
 const validateEmail = (req, res, next) => {
     const { email } = req.body;
+    
+    if (!email) {
+        return res.status(400).json({
+            message: "Email Required"
+        });
+    }
     const emailRegrex = /^\S+@\S+\.\S+$/;
 
     if (!emailRegrex.test(email)) {

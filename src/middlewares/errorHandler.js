@@ -1,12 +1,18 @@
 const erroHandler = (err, req, res, next) => {
     console.error(err.stack);
-    
+
     const statusCode = err.statusCode || 500;
-    
+
     res.status(statusCode).json({
         success: false,
         message: err.message || "INTERNAL_SERVER_ERROR"
-    })
+    });
+
+    if (err.message == "EMAIL_ALREADY_VERIFIED") {
+        return res.status(400).json({
+            message: err.message
+        });
+    }
 
     if (err.message == "INVALID_REFRESH_TOKEN") {
         return res.status(400).json({

@@ -14,6 +14,10 @@ class UserRepository {
         return await User.findOne({ email, isActive: true });
     };
 
+    async findByEmailBeforeRegister(email) {
+        return await User.findOne({email});
+    }
+
     async userByToken(hashedToken) {
 
         const user = await User.findOne({

@@ -20,6 +20,8 @@ router.post('/register', rateLimit({
 
 router.get('/verify-email/:token', validations.emailVerifyValidation, authController.verifyEmail);
 
+router.post('/resend-verification', validations.validateEmail, authController.resendVerifyEmail);
+
 router.post('/refresh-token', rateLimit({
     windowSeconds: 60,
     maxRequests: 5,

@@ -7,6 +7,7 @@ const RefreshTokenRepository = require('../repositories/refreshToken.repository'
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
 const { error } = require('console');
+const User = require('../models/User');
 
 
 class AuthServices {
@@ -284,6 +285,35 @@ class AuthServices {
         await user.save();
 
         return user;
+
+    }
+
+    async resendVerifyEmail(email) {
+
+        const user = await this.userRepository.findByEmailBeforeRegister(email);
+        if (!user) {
+            throw new Error("USER_NOT_FOUND");
+        }
+        if (user.isEmailVerified) {
+            throw new Error("EMAIL_ALREADY_VERIFIED");
+
+        }
+        const rawToken = user.createEmailVerificationToken();
+        user.save();
+
+        const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+        await sendEmail({
+            to: user.email,
+            subject: "Verify your email",
+            html: `
+                <h2>Email Verification</h2>
+                <p>Click below to verify:</p>
+                <a href="${verifyLink}">${verifyLink}</a>
+                <p>Expires in 15 minutes.</p>
+                `,
+        });
+
+        return { message: "Verification email resent successfully." }
 
     }
 
