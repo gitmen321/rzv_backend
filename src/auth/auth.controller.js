@@ -21,7 +21,9 @@ exports.loginValidation = async (req, res, next) => {
         const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
         const userAgent = req.headers['user-agent'];
         console.log('ipaddress:', ip, 'userAgent', userAgent);
+
         const loginUser = await authServices.loginService(email, password, ip, userAgent);
+        
         res.status(200).json({
             message: "login successful",
             User: loginUser

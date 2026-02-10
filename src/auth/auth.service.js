@@ -23,10 +23,11 @@ class AuthServices {
 
         const user = await this.authRepository.findByEmailWithPass(email);
 
-        if (!user.isEmailVerified) throw new Error("EMAIL_NOT_VERIFIED");
+        if (!user || !user.isActive || !user.isEmailVerified) throw new Error("USER_NOT_EXISTED_OR_VERIFIED");
 
 
-        if (!user || !user.isActive) throw new Error("USER_NOT_EXISTED");
+
+
 
         const isMatch = await bcrypt.compare(password, user.password);
 
@@ -149,11 +150,19 @@ class AuthServices {
     async register(newUser) {
         const { email, name, password } = newUser;
 
-        const existingEmail = await this.userRepository.findByEmail(email);
+        const existingEmail = await this.userRepository.findByEmailBeforeRegister(email);
 
         if (existingEmail) {
-            throw new Error("EMAIL_ALREADY_REGISTERED");
-        };
+
+            if (existingEmail.isEmailVerified) {
+                throw new Error("EMAIL_ALREADY_REGISTERED");
+            }
+
+            await this.resendVerifyEmail(email);
+
+            throw new Error("EMAIL_NOT_VERIFIED_RESENT");
+
+        }
 
         const session = await mongoose.startSession();
 
@@ -299,7 +308,7 @@ class AuthServices {
 
         }
         const rawToken = user.createEmailVerificationToken();
-        user.save();
+        await user.save();
 
         const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
         await sendEmail({
@@ -312,8 +321,10 @@ class AuthServices {
                 <p>Expires in 15 minutes.</p>
                 `,
         });
+        console.log("resent successfully");
 
-        return { message: "Verification email resent successfully." }
+        return { success: true,
+             message: "VERIFICATION_EMAIL_RESENT" }
 
     }
 

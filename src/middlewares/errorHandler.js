@@ -1,109 +1,58 @@
-const erroHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
     console.error(err.stack);
 
-    const statusCode = err.statusCode || 500;
-
-    res.status(statusCode).json({
-        success: false,
-        message: err.message || "INTERNAL_SERVER_ERROR"
-    });
-
-    if (err.message == "EMAIL_ALREADY_VERIFIED") {
-        return res.status(400).json({
-            message: err.message
-        });
+    console.log("Error Handler Triggered");
+    console.log("HEADERS SENT?", res.headersSent);
+    
+    if(res.headersSent){
+        return next(err);
     }
 
-    if (err.message == "INVALID_REFRESH_TOKEN") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
-    if (err.message == "ADMIN_REGISTRATION_DIABLED") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
-    if (err.message == "CURRENT_STATUS_IS_SAME") {
-        res.status(409).json({
-            message: err.message
-        });
+    // 1. Handle specific Library/System errors first
+    if (err.name === "ValidationError") {
+        return res.status(400).json({ message: err.message });
     }
 
+    if (["DB_ERROR", "MongooseError", "MongoError"].includes(err.name)) {
+        return res.status(503).json({ message: "Database temporary unavailable" });
+    }
 
-    if (err.message === "INSUFFICIENT_BALANCE") {
+    if (err instanceof SyntaxError && err.type === 'entity.parse.failed') {
+        return res.status(400).json({ message: 'Invalid Json body' });
+    }
+
+    if(err.code === 11000){
         return res.status(409).json({
-            message: err.message
+            success: false,
+            message: "EMAIL_ALREADY_REGISTERED"
         });
     }
 
-
-
-    if (err.message == "USER_NOT_EXISTED") {
-        return res.status(400).json({
-            message: err.message
-        });
-    }
-
-    if (err.name == "ValidationError") {
-        return res.status(400).json({
-            message: err.message
-        });
-
-
-    }
-    if (err.message == "INACTIVE_USER") {
-        return res.status(403).json({
-            message: err.message
-        });
+    // 2. Map your custom error messages to status codes
+    const errorMap = {
+        "EMAIL_ALREADY_VERIFIED": 400,
+        "INVALID_REFRESH_TOKEN": 400,
+        "ADMIN_REGISTRATION_DIABLED": 400,
+        "USER_NOT_EXISTED": 400,
+        "INVALID_CREDENTIALS": 400,
+        "INACTIVE_USER": 403,
+        "USER_NOT_FOUND": 404,
+        "USER_NAME_NOT_FOUND": 404,
+        "USER_NOT_EXISTED_OR_VERIFIED": 409,
+        "CURRENT_STATUS_IS_SAME": 409,
+        "INSUFFICIENT_BALANCE": 409,
+        "EMAIL_ALREADY_REGISTERED": 409,
+        "EMAIL_NOT_VERIFIED_RESENT":400
     };
 
-    if (err.message == "INVALID_CREDENTIALS") {
-        return res.status(400).json({
-            message: err.message
-        });
+    const statusCode = errorMap[err.message] || err.statusCode || 500;
+    const message = statusCode === 500 ? "Internal Server Error" : err.message;
 
-    }
-
-
-    if (err.name === "DB_ERROR" || err.name === "MongooseError" || err.name === " MongoError") {
-        return res.status(503).json({
-            message: "Database temporary unavailable"
-        });
-    }
-
-    // invalid json body
-    if (err instanceof SyntaxError && err.type === 'entity.parse.failed') {
-        return res.status(400).json({
-            message: 'Invalid Json body'
-        });
-    }
-
-
-
-
-    switch (err.message) {
-        case "USER_NOT_FOUND":
-            return res.status(404).json({
-                message: "User not found"
-            });
-        case "EMAIL_ALREADY_REGISTERED":
-            return res.status(409).json({
-                message: "Email already exists"
-            });
-        case "USER_NAME_NOT_FOUND":
-            return res.status(404).json({
-                message: "User name not found"
-            });
-
-        default:
-            res.status(500).json({
-                message: "Internal Server Error"
-            });
-    }
+    // 3. Single point of return
+    return res.status(statusCode).json({
+        success: false,
+        message: message
+    });
 };
 
-
-
-
-module.exports = erroHandler;
+module.exports = errorHandler;

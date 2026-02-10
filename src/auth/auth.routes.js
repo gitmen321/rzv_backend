@@ -18,9 +18,16 @@ router.post('/register', rateLimit({
     keyPrefix: "register"
 }), validations.isValid, validations.validateEmail, validations.passwordConfirmation, authController.register);
 
-router.get('/verify-email/:token', validations.emailVerifyValidation, authController.verifyEmail);
+router.get('/verify-email/:token', rateLimit({
+    windowSeconds: 60,
+    maxRequests: 5
+}), validations.emailVerifyValidation, authController.verifyEmail);
 
-router.post('/resend-verification', validations.validateEmail, authController.resendVerifyEmail);
+router.post('/resend-verification', rateLimit({
+    windowSeconds: 60,
+    maxRequests: 3
+
+}), validations.validateEmail, authController.resendVerifyEmail);
 
 router.post('/refresh-token', rateLimit({
     windowSeconds: 60,
