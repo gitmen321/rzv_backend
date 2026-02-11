@@ -3,8 +3,8 @@ const errorHandler = (err, req, res, next) => {
 
     console.log("Error Handler Triggered");
     console.log("HEADERS SENT?", res.headersSent);
-    
-    if(res.headersSent){
+
+    if (res.headersSent) {
         return next(err);
     }
 
@@ -21,7 +21,7 @@ const errorHandler = (err, req, res, next) => {
         return res.status(400).json({ message: 'Invalid Json body' });
     }
 
-    if(err.code === 11000){
+    if (err.code === 11000) {
         return res.status(409).json({
             success: false,
             message: "EMAIL_ALREADY_REGISTERED"
@@ -42,7 +42,9 @@ const errorHandler = (err, req, res, next) => {
         "CURRENT_STATUS_IS_SAME": 409,
         "INSUFFICIENT_BALANCE": 409,
         "EMAIL_ALREADY_REGISTERED": 409,
-        "EMAIL_NOT_VERIFIED_RESENT":400
+        "EMAIL_NOT_VERIFIED_RESENT": 400,
+        "WALLET_NOT_EXISTED": 400,
+        "TRANSACTIONS_NOT_EXISTED": 400
     };
 
     const statusCode = errorMap[err.message] || err.statusCode || 500;

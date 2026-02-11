@@ -63,8 +63,27 @@ class TokenTransactionRepository {
     }
 
 
-    async findByUserId(userId, { page, limit, skip }, session = null) {
-        let query = TokenTransaction.find({ user: userId })
+    async findByUserId(userId, { limit, skip, startOfDate, endOfDate }, session = null) {
+
+        const filter = { user: userId };
+
+        if (startOfDate || endOfDate) {
+            filter.createdAt = {};
+
+            if (startOfDate) {
+                if (!isNaN(startOfDate)) filter.createdAt.$gte = startOfDate;
+            }
+
+            if (endOfDate) {
+                if (!isNaN(endOfDate)) filter.createdAt.$lte = endOfDate;
+            }
+
+            if (Object.keys(filter.createdAt).length === 0) {
+                delete filter.createdAt;
+            }
+        }
+
+        let query = TokenTransaction.find(filter)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);

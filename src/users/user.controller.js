@@ -1,10 +1,14 @@
 const UserServices = require('./user.service');
 const UserRepository = require('../repositories/user.repositories');
 const WalletRepository = require('../repositories/wallet.repository');
+const RefreshTokenRepository = require("../repositories/refreshToken.repository");
+const TokenTransactionRepository = require("../repositories/tokenTransaction.repository");
 
+const refreshTokenRepository = new RefreshTokenRepository();
+const tokenTransactionRepository = new TokenTransactionRepository();
 const walletRepository = new WalletRepository();
 const userRepository = new UserRepository();
-const userService = new UserServices(userRepository, walletRepository);
+const userService = new UserServices(userRepository, walletRepository, refreshTokenRepository, tokenTransactionRepository);
 
 
 
@@ -13,11 +17,12 @@ exports.currentMe = async (req, res, next) => {
     try {
 
         const id = req.user.id;
-        const meDetails = await userService.getUserById(id);
+        console.lo
+        const myDetails = await userService.getUserById(id);
 
         return res.status(200).json({
-            message: "Current user details:",
-            user: meDetails
+            message: "User profile details:",
+            user: myDetails
         });
 
     } catch (err) {
@@ -25,91 +30,10 @@ exports.currentMe = async (req, res, next) => {
     }
 };
 
-exports.getAllUsers = async (req, res, next) => {
 
+exports.updateMyProfile = async (req, res, next) => {
     try {
-
-        const { page, limit, sortBy, order, search } = req.query;
-        console.log("requested body:", req.query);
-
-        const result = await userService.getAllUsers(page, limit, sortBy, order, search); //abstraction: exposing what a class does it, not how it does it
-
-        console.log("Users from services", result);
-        res.status(200).json(result);
-    }
-    catch (err) {
-        console.err(err);
-        next(err);
-    }
-};
-
-exports.userProfile = async (req, res) => {
-    res.status(200).json({
-        message: "Profile accessed successfully",
-        user: req.user,
-    });
-
-};
-
-exports.countUsers = async (req, res) => {
-    const usersCount = await userService.countUser();
-    res.status(200).json({
-        message: "User count is:",
-        user: usersCount,
-    });
-};
-
-exports.getUserById = async (req, res, next) => {
-
-    try {
-        const id = req.params.id;
-        console.log("id:", id);
-        const user = await userService.getUserById(id);
-        res.status(200).json(user);
-    }
-
-    catch (error) {
-        next(error);
-    }
-};
-
-exports.getUserByName = async (req, res, next) => {
-    try {
-        const name = req.params.name;
-        const user = await userService.getUserByName(name);
-        console.log(user);
-        res.status(200).json(user);
-
-    } catch (error) {
-        next(error);
-    }
-};
-
-
-
-exports.createUsers = async (req, res, next) => {
-
-    try {
-        const newUser = req.body;
-        console.log(newUser);
-
-
-        const cretatedUser = await userService.createUser(newUser);
-
-        res.status(201).json({
-            user: cretatedUser,
-        });
-    }
-
-    catch (error) {
-        next(error);
-
-    };
-};
-
-exports.updateUsers = async (req, res, next) => {
-    try {
-        const id = req.params.id;
+        const id = req.user.id;
         const updatedData = req.body;
         console.log(updatedData, "id:", id);
 
@@ -127,10 +51,50 @@ exports.updateUsers = async (req, res, next) => {
 
 };
 
+exports.getWallet = async (req, res, next) => {
+
+    try {
+        const id = req.user.id;
+        const walletDetails = await userService.getWalletDetails(id);
+
+        res.status(200).json({
+            message: "User WalletDetails",
+            data: walletDetails,
+        });
+
+
+    } catch (err) {
+        next(err);
+    }
+
+}
+
+exports.getTransaction = async (req, res, next) => {
+    try {
+        const id = req.user.id;
+        const { page, limit, start, end } = req.query;
+
+        const transactionSummary = await userService.getTransactionSummary(id, page, limit, start, end);
+
+        res.status(200).json({
+            message: "User transaction history",
+            data: transactionSummary,
+        });
+
+    } catch (err) {
+        next(err);
+    }
+}
+
+
+
+
 
 exports.deleteUser = async (req, res, next) => {
     try {
-        const id = req.params.id;
+        const id = req.user.id;
+
+        console.log("User id from authmiddl:", id);
         const deletedUser = await userService.deleteUser(id);
 
         res.status(200).json({

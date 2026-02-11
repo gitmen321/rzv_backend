@@ -52,6 +52,18 @@ exports.getDashBoardStats = async (req, res, next) => {
     }
 }
 
+exports.getUserByName = async (req, res, next) => {
+    try {
+        const name = req.params.name;
+        const user = await userService.getUserByName(name);
+        console.log(user);
+        res.status(200).json(user);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.getUserById = async (req, res, next) => {
     try {
         const { id } = req.params;

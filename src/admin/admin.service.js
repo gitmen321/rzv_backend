@@ -49,6 +49,16 @@ class AdminServices {
         }
     };
 
+     async getUserByName(name) {
+        const user = await this.userRepository.findByName(name);
+
+        if (!user) {
+            throw new Error("USER_NAME_NOT_FOUND");
+        }
+        return user;
+    }
+
+
     async getDashboardStatsForAdmin() {
 
         const [

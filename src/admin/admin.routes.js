@@ -6,6 +6,7 @@ const { ROLE } = require('../constants/auth.constants');
 const adminController = require('../admin/admin.controller');
 const validations = require('../middlewares/admin.middleware');
 const rateLimit = require('../middlewares/rateLimit.middleware');
+const userValidation = require('../middlewares/user_middleware');
 
 
 router.get('/admin/dashboard/stats', isAuthenticated, authorizeRole(ROLE.ADMIN), adminController.getDashBoardStats);
@@ -17,6 +18,9 @@ router.get('/admin/users', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit
     maxRequests: Number(process.env.ADMIN_RATE_RATE),
     keyPrefix: 'admin-users'
 }), adminController.getAllUsers);
+
+router.get('/users/by-name/:name', authorizeRole(ROLE.ADMIN), isAuthenticated, userValidation.validateName, adminController.getUserByName);
+
 
 router.get('/admin/wallet/summary', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit({
     windowSeconds: 60,

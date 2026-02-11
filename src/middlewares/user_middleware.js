@@ -1,6 +1,35 @@
 const mongoose = require('mongoose');
 
 
+const isValidUpdate = (req, res, next) => {
+    const { name, age } = req.body || {};
+
+    if (!req.body) {
+        return res.status(400).json({
+            message: "body required",
+        });
+    }
+
+    if (name) {
+        if (name === undefined) {
+            console.log("name sould be defined");
+            return res.status(400).json({
+                message: "Name required",
+            });
+        }
+    }
+    if (age) {
+        if (typeof age !== "number") {
+            return res.status(400).json({
+                message: "age must be a number"
+            });
+        }
+
+    }
+
+    next();
+}
+
 const isValid = (req, res, next) => {
     const { name, age, email, password } = req.body || {};
 
@@ -125,7 +154,7 @@ const resetPasswordValidation = (req, res, next) => {
 
 const validateEmail = (req, res, next) => {
     const { email } = req.body;
-    
+
     if (!email) {
         return res.status(400).json({
             message: "Email Required"
@@ -176,4 +205,4 @@ const validateObjectId = (req, res, next) => {
     next();
 }
 
-module.exports = { isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation, emailVerifyValidation };
+module.exports = { isValidUpdate, isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation, emailVerifyValidation };

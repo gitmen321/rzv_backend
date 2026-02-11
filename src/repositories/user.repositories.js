@@ -102,13 +102,13 @@ class UserRepository {
 
 
 
-    async update(id, updatedData) {
+    async update(id, filtered) {
         return await User.findOneAndUpdate(
             {
                 _id: id,
                 isActive: true
             },
-            { ...updatedData },
+            { ...filtered },
             { new: true }
         );
     };
