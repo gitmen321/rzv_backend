@@ -1,6 +1,34 @@
 const mongoose = require('mongoose');
 
 
+const validDateRange = (req, res, next) => {
+    const { start, end } = req.query;
+
+    if (!start && !end) {
+       return next();
+    }
+    if (!start || !end) {
+        return res.status(400).json({
+            message: "BOTH_START_AND_END_DATE_REQUIRED_FOR_RANGE"
+        });
+    }
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return res.status(400).json({
+            message: "INVALID_DATE_FORMAT_PROVIDED"
+        });
+    }
+
+    if (startDate >= endDate) {
+        return res.status(400).json({
+            message: "START_DATE_SHOULD_BE_LESS_THAN_END_DATE"
+        });
+    }
+    next();
+}
+
 const isValidUpdate = (req, res, next) => {
     const { name, age } = req.body || {};
 
@@ -205,4 +233,4 @@ const validateObjectId = (req, res, next) => {
     next();
 }
 
-module.exports = { isValidUpdate, isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation, emailVerifyValidation };
+module.exports = { validDateRange, isValidUpdate, isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation, emailVerifyValidation };

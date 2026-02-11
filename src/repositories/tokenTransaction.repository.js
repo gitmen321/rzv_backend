@@ -71,11 +71,12 @@ class TokenTransactionRepository {
             filter.createdAt = {};
 
             if (startOfDate) {
-                if (!isNaN(startOfDate)) filter.createdAt.$gte = startOfDate;
+                
+                if (!isNaN(startOfDate.getTime())) filter.createdAt.$gte = startOfDate;
             }
 
             if (endOfDate) {
-                if (!isNaN(endOfDate)) filter.createdAt.$lte = endOfDate;
+                if (!isNaN(endOfDate.getTime())) filter.createdAt.$lte = endOfDate;
             }
 
             if (Object.keys(filter.createdAt).length === 0) {

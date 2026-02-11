@@ -16,7 +16,7 @@ router.get('/user/me', rateLimit({
 
 router.get('/user/wallet', isAuthenticated, userController.getWallet);
 
-router.get('/user/transactions', isAuthenticated, userController.getTransaction);
+router.get('/user/transactions', isAuthenticated, validations.validDateRange, userController.getTransaction);
 
 router.put('/user/update', isAuthenticated, validations.isValidUpdate, userController.updateMyProfile);
 

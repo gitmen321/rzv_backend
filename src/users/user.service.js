@@ -58,35 +58,41 @@ class UserServices {
 
     async getTransactionSummary(id, page, limit, start, end) {
 
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        const startOfDate = new Date(Date.UTC(
-            startDate.getUTCFullYear(),
-            startDate.getUTCMonth(),
-            startDate.getUTCDate(),
-            0, 0, 0, 0
-        ));
-
-        const endOfDate = new Date(Date.UTC(
-            endDate.getUTCFullYear(),
-            endDate.getUTCMonth(),
-            endDate.getUTCDate(),
-            23, 59, 59, 999
-        ));
-
         const pageNum = Number(page) || 1;
         const limitNum = Number(limit) || 10;
         const skip = (pageNum - 1) * limitNum;
+        let startOfDate = null;
+        let endOfDate = null;
+
+        if (start && end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+
+             startOfDate = new Date(Date.UTC(
+                startDate.getUTCFullYear(),
+                startDate.getUTCMonth(),
+                startDate.getUTCDate(),
+                0, 0, 0, 0
+            ));
+
+             endOfDate = new Date(Date.UTC(
+                endDate.getUTCFullYear(),
+                endDate.getUTCMonth(),
+                endDate.getUTCDate(),
+                23, 59, 59, 999
+            ));
+        }
 
         const data = await this.tokenTransactionRepository.findByUserId(id, {
-            limit: limitNum, skip, startOfDate: startOfDate || null, endOfDate: endOfDate || null
+            limit: limitNum,
+            skip,
+            startOfDate,
+            endOfDate
         });
 
-        if (!data || data.length === 0) return {};
+        if (!data || data.length === 0) return [];
 
         console.log("Transaction summary: ", data);
-        console.log("DataSSSS:", data.type, data.amount);
 
         return data.map(transaction => ({
             type: transaction.type,
