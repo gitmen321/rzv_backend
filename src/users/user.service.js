@@ -83,7 +83,7 @@ class UserServices {
             limit: limitNum, skip, startOfDate: startOfDate || null, endOfDate: endOfDate || null
         });
 
-        if (!data || data.length === 0) throw new Error("TRANSACTIONS_NOT_EXISTED");
+        if (!data || data.length === 0) return {};
 
         console.log("Transaction summary: ", data);
         console.log("DataSSSS:", data.type, data.amount);
