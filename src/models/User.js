@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const generateReferralCode = require('../utils/generate.referral');
 
 const userSchema = new mongoose.Schema(
     {
@@ -52,6 +53,20 @@ const userSchema = new mongoose.Schema(
         },
         emailVerifyExpires: {
             type: Date,
+        },
+        referralCode: {
+            type: String,
+            unique: true,
+            index: true
+        },
+        referredBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            default: null
+        },
+        referralRewardClaimed: {
+            type: Boolean,
+            default: false
         }
 
     },
@@ -67,8 +82,21 @@ userSchema.pre('save', async function () {
     }
 
     const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(this.password, salt);
-    this.password = hash;
+    this.password = await bcrypt.hash(this.password, salt);
+
+    if (this.isNew && !this.referralCode) {
+
+        let code;
+        let exists = true;
+
+        while (exists) {
+            code = generateReferralCode(this.name);
+            exists = await this.constructor.exists({ refferalCode: code });
+        }
+
+        this.referralCode = code;
+        console.log("referralCode:", code);
+    }
 });
 
 userSchema.methods.createEmailVerificationToken = function () {
