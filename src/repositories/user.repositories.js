@@ -15,7 +15,7 @@ class UserRepository {
     };
 
     async findByEmailBeforeRegister(email) {
-        return await User.findOne({email});
+        return await User.findOne({ email });
     }
 
     async userByToken(hashedToken) {
@@ -63,8 +63,8 @@ class UserRepository {
     }
 
 
-    async findById(id) {
-        return await User.findOne({ _id: id, isActive: true });
+    async findById(id, session = null) {
+        return await User.findOne({ _id: id, isActive: true }, null, { session });
     };
 
 
@@ -75,6 +75,11 @@ class UserRepository {
     async findByName(name) {
         return await User.findOne({ name: name, isActive: true });
     };
+
+    async findByRefferal(referralCode) {
+
+        return await User.findOne({ referralCode: referralCode, isActive: true });
+    }
 
 
 

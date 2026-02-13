@@ -58,6 +58,91 @@ class RewardServices {
         }
 
     }
+
+    async registerByReferReward(user, externalSession = null) {
+        const userId = user.id;
+        const amount = REWARD_AMOUNTS.REFERRED;
+        const reason = REWARD_REASON.REFERRED;
+
+        const session = externalSession || await mongoose.startSession();
+        const isLocalSession = !externalSession;
+
+        if (isLocalSession) session.startTransaction();
+
+        try {
+
+            await this.walletRepository.incrementBalance(userId, amount, session);
+            await this.tokenTransactionRepository.createTransaction({
+                user: userId,
+                type: 'CREDIT',
+                amount,
+                reason,
+                source: 'reward'
+            }, session
+            );
+
+            if (isLocalSession) await session.commitTransaction();
+
+            console.log("referred user reward service is successfully calling");
+
+            return {
+                amount, reason, message: "REFERRAL_REWARD_GRANTED"
+            }
+
+        } catch (err) {
+            if (isLocalSession && session.inTransaction()) {
+                await session.abortTransaction();
+            }
+            throw err;
+        } finally {
+            if (isLocalSession) session.endSession();
+        }
+    }
+
+    async referralReward(user, externalSession = null) {
+        const userId = user.id;
+        const amount = REWARD_AMOUNTS.REFERRAL;
+        const reason = REWARD_REASON.REFERRAL;
+
+        console.log("Reward reason:", reason);
+
+        const session = externalSession || await mongoose.startSession();
+        const isLocalSession = !externalSession;
+
+        if (isLocalSession) session.startTransaction();
+
+        try {
+            await this.walletRepository.incrementBalance(userId, amount, session);
+
+            await this.tokenTransactionRepository.createTransaction({
+                user: userId,
+                type: 'CREDIT',
+                amount,
+                reason,
+                source: 'reward'
+            }, session
+            );
+
+            if(isLocalSession) await session.commitTransaction();
+
+            console.log("referral REward service is successfully calling");
+
+            return {
+                amount, reason, message: "REFERRAL_REWARD_GRANTED"
+            }
+
+
+
+        } catch (err) {
+            if (isLocalSession && session.inTransaction()) {
+                await session.abortTransaction();
+            }
+            throw err;
+        } finally {
+            if (isLocalSession) session.endSession();
+        }
+
+    }
 }
 
 module.exports = RewardServices;

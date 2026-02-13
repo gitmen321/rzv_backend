@@ -148,7 +148,20 @@ class AuthServices {
 
 
     async register(newUser) {
-        const { email, name, password } = newUser;
+        const { email, name, password, referralCode } = newUser;
+        let referral;
+        let isRefered = false;
+
+        if (referralCode) {
+            referral = await this.userRepository.findByRefferal(referralCode);
+
+            if (!referral) {
+                throw new Error("REFERRAL_CODE_IS_NOT_VALID");
+            }
+            console.log("referror person:", referral.name);
+            console.log("referror id:", referral.id);
+            isRefered = true;
+        }
 
         const existingEmail = await this.userRepository.findByEmailBeforeRegister(email);
 
@@ -172,6 +185,9 @@ class AuthServices {
             const newUser = await this.userRepository.create({ email, password, name, isEmailVerified: false, isActive: false }, session);
 
             await this.walletRepository.createWallet(newUser.id, 0, session);
+
+            //save referror
+            if (isRefered) newUser.referredBy = referral.id;
 
             const rawToken = newUser.createEmailVerificationToken();
 
@@ -291,6 +307,41 @@ class AuthServices {
         user.emailVerifyToken = undefined;
         user.emailVerifyExpires = undefined;
 
+        console.log("userrefererd:", user.referredBy);
+
+        const session = await mongoose.startSession();
+
+        try {
+            session.startTransaction();
+
+            if (user.referredBy) {
+
+                const id = user.referredBy;
+                const referredUser = await this.userRepository.findById(id, session);
+
+                if (referredUser) {
+                    await this.rewardServices.registerByReferReward(user, session);
+
+                    await this.rewardServices.referralReward(referredUser, session);
+
+                    user.referralRewardClaimed = true;
+
+                    console.log("Inside the if in verify-email");
+
+                    await referredUser.save({ session });
+                }
+                await session.commitTransaction();
+            }
+
+        } catch (err) {
+            await session.abortTransaction();
+            console.error("Transaction failed, rolling back changes", error);
+            throw error;
+        }
+        finally {
+            session.endSession();
+        }
+
         await user.save();
 
         return user;
@@ -323,8 +374,10 @@ class AuthServices {
         });
         console.log("resent successfully");
 
-        return { success: true,
-             message: "VERIFICATION_EMAIL_RESENT" }
+        return {
+            success: true,
+            message: "VERIFICATION_EMAIL_RESENT"
+        }
 
     }
 

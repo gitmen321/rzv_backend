@@ -44,7 +44,8 @@ const errorHandler = (err, req, res, next) => {
         "EMAIL_ALREADY_REGISTERED": 409,
         "EMAIL_NOT_VERIFIED_RESENT": 400,
         "WALLET_NOT_EXISTED": 400,
-        "TRANSACTIONS_NOT_EXISTED": 400
+        "TRANSACTIONS_NOT_EXISTED": 400,
+        "REFERRAL_CODE_IS_NOT_VALID": 400
     };
 
     const statusCode = errorMap[err.message] || err.statusCode || 500;
