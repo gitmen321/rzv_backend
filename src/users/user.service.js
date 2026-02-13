@@ -1,6 +1,7 @@
 
 // Encapsulation: keeping data + logic together, and hiding internal state, eg: repository is inside the user services, controll cannot access it, can't call repository directly
 const _ = require('lodash');
+const rewardReason = require("../constants/reward.constants");
 
 class UserServices {
 
@@ -68,14 +69,14 @@ class UserServices {
             const startDate = new Date(start);
             const endDate = new Date(end);
 
-             startOfDate = new Date(Date.UTC(
+            startOfDate = new Date(Date.UTC(
                 startDate.getUTCFullYear(),
                 startDate.getUTCMonth(),
                 startDate.getUTCDate(),
                 0, 0, 0, 0
             ));
 
-             endOfDate = new Date(Date.UTC(
+            endOfDate = new Date(Date.UTC(
                 endDate.getUTCFullYear(),
                 endDate.getUTCMonth(),
                 endDate.getUTCDate(),
@@ -100,6 +101,16 @@ class UserServices {
             reason: transaction.reason,
             createdAt: transaction.createdAt
         }));
+    }
+
+    async getReferralDetails(id) {
+
+        const reason = rewardReason.REWARD_REASON.REFERRAL;
+        console.log("userId:", id, "reason:", reason);
+
+        const data = this.tokenTransactionRepository.getReferralRewardDetails(id, reason);
+
+        return data;
     }
 
 

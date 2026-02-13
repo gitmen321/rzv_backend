@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const TokenTransaction = require('../models/TokenTransaction');
 
 class TokenTransactionRepository {
@@ -71,7 +72,7 @@ class TokenTransactionRepository {
             filter.createdAt = {};
 
             if (startOfDate) {
-                
+
                 if (!isNaN(startOfDate.getTime())) filter.createdAt.$gte = startOfDate;
             }
 
@@ -209,6 +210,28 @@ class TokenTransactionRepository {
 
         return result.length > 0 ? result[0].totalCount : 0;
 
+    }
+
+    async getReferralRewardDetails(id, reason) {
+
+        const userId = new mongoose.Types.ObjectId(id);
+        const result = await TokenTransaction.aggregate([
+            {
+                $match: {
+                    user: userId,
+                    reason: reason
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: "$amount" },
+                    totalCount: { $sum: 1 }
+                },
+            }
+        ]);
+        console.log("TotalCount and amount:", result);
+        return result[0] || { totalAmount: 0, totalCount: 0 };
     }
 
 }

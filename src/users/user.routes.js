@@ -18,6 +18,8 @@ router.get('/user/wallet', isAuthenticated, userController.getWallet);
 
 router.get('/user/transactions', isAuthenticated, validations.validDateRange, userController.getTransaction);
 
+router.get('/user/referral', isAuthenticated, userController.getReferralDetails);
+
 router.put('/user/update', isAuthenticated, validations.isValidUpdate, userController.updateMyProfile);
 
 

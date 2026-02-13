@@ -123,7 +123,7 @@ class RewardServices {
             }, session
             );
 
-            if(isLocalSession) await session.commitTransaction();
+            if (isLocalSession) await session.commitTransaction();
 
             console.log("referral REward service is successfully calling");
 

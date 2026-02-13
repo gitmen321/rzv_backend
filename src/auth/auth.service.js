@@ -149,11 +149,13 @@ class AuthServices {
 
     async register(newUser) {
         const { email, name, password, referralCode } = newUser;
+
         let referral;
         let isRefered = false;
 
         if (referralCode) {
-            referral = await this.userRepository.findByRefferal(referralCode);
+            const referralId = referralCode.toUpperCase();
+            referral = await this.userRepository.findByRefferal(referralId);
 
             if (!referral) {
                 throw new Error("REFERRAL_CODE_IS_NOT_VALID");
@@ -314,7 +316,7 @@ class AuthServices {
         try {
             session.startTransaction();
 
-            if (user.referredBy) {
+            if (!user.referralRewardClaimed && user.referredBy) {
 
                 const id = user.referredBy;
                 const referredUser = await this.userRepository.findById(id, session);
@@ -330,20 +332,21 @@ class AuthServices {
 
                     await referredUser.save({ session });
                 }
-                await session.commitTransaction();
             }
+
+            await user.save({ session });
+
+            await session.commitTransaction();
+
 
         } catch (err) {
             await session.abortTransaction();
-            console.error("Transaction failed, rolling back changes", error);
-            throw error;
+            console.error("Transaction failed, rolling back changes", err);
+            throw err;
         }
         finally {
             session.endSession();
         }
-
-        await user.save();
-
         return user;
 
     }

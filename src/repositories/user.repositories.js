@@ -76,13 +76,10 @@ class UserRepository {
         return await User.findOne({ name: name, isActive: true });
     };
 
-    async findByRefferal(referralCode) {
+    async findByRefferal(referralId) {
 
-        return await User.findOne({ referralCode: referralCode, isActive: true });
+        return await User.findOne({ referralCode: referralId, isActive: true });
     }
-
-
-
 
     async create({ name, age, email, password }, session = null) {
         try {
@@ -117,6 +114,7 @@ class UserRepository {
             { new: true }
         );
     };
+    
 
 
     async remove(id) {
