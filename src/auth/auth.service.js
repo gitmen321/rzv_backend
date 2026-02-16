@@ -25,15 +25,10 @@ class AuthServices {
 
         if (!user || !user.isActive || !user.isEmailVerified) throw new Error("USER_NOT_EXISTED_OR_VERIFIED");
 
-
-
-
-
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) throw new Error("INVALID_CREDENTIALS");
 
-        console.log('ROLE FROM DB:', user.role);
 
         const payload = {
             id: user._id,
@@ -56,7 +51,7 @@ class AuthServices {
 
         if (user.role == 'admin') {
             const adminId = user.id;
-            console.log('yes it is admin', adminId);
+
             await auditLogs({
                 adminId,
                 action: "ADMIN_LOGIN",

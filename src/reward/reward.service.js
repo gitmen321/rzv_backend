@@ -22,9 +22,7 @@ class RewardServices {
             const isRewarded = await this.tokenTransactionRepository.findTodayReward(userId, reason, session);
 
             if (isRewarded) {
-                console.log('kkkALREADY_REWARDED_TODAY');
                 throw new Error("ALREADY_REWARDED_TODAY");
-
             }
 
 
