@@ -84,7 +84,6 @@ class UserRepository {
     async create({ name, age, email, password }, session = null) {
         try {
             const user = new User({ name, age, email, password });
-            console.log('repos try block');
             return await user.save({ session });
         }
         catch (err) {
@@ -114,7 +113,7 @@ class UserRepository {
             { new: true }
         );
     };
-    
+
 
 
     async remove(id) {

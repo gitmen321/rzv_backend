@@ -5,7 +5,7 @@ const validDateRange = (req, res, next) => {
     const { start, end } = req.query;
 
     if (!start && !end) {
-       return next();
+        return next();
     }
     if (!start || !end) {
         return res.status(400).json({
@@ -82,7 +82,6 @@ const isValid = (req, res, next) => {
 
     }
 
-    console.log('middleware valid');
     next();
 
 };

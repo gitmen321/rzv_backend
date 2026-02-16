@@ -1,13 +1,15 @@
 
 const redisClient = require('../config/redis');
 
- const rateLimit = ({
+const rateLimit = ({
     windowSeconds,
     maxRequests,
     keyPrefix = "RL"
 }) => {
     return async (req, res, next) => {
         try {
+
+            if (process.env.NODE_ENV === "test") return next(); //for integration testing
 
             const identifier = req.user?.id || req.ip;
             const redisKey = `${keyPrefix}:${identifier}`;

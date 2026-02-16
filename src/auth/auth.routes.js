@@ -6,17 +6,21 @@ const rateLimit = require('../middlewares/rateLimit.middleware');
 const isLoginvalid = require('../middlewares/login_middleware');
 const authController = require('./auth.controller');
 
+const isTest = process.env.NODE_ENV === "test";
+
 router.post('/login', rateLimit({
     windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),
     maxRequests: Number(process.env.LOGIN_RATE_MAX),
     keyPrefix: "login"
 }), isLoginvalid, authController.loginValidation);
 
-router.post('/register', rateLimit({
-    windowSeconds: Number(process.env.REGISTER_RATE_WINDOW),
-    maxRequests: Number(process.env.REGISTER_RATE_MAX),
-    keyPrefix: "register"
-}), validations.isValid, validations.validateEmail, validations.passwordConfirmation, authController.register);
+router.post('/register',
+     rateLimit({
+        windowSeconds: Number(process.env.REGISTER_RATE_WINDOW),
+        maxRequests: Number(process.env.REGISTER_RATE_MAX),
+        keyPrefix: "register"
+    }),
+    validations.isValid, validations.validateEmail, validations.passwordConfirmation, authController.register);
 
 router.get('/verify-email/:token', rateLimit({
     windowSeconds: 60,

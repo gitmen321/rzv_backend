@@ -95,7 +95,6 @@ userSchema.pre('save', async function () {
         }
 
         this.referralCode = code;
-        console.log("referralCode:", code);
     }
 });
 

@@ -160,8 +160,6 @@ class AuthServices {
             if (!referral) {
                 throw new Error("REFERRAL_CODE_IS_NOT_VALID");
             }
-            console.log("referror person:", referral.name);
-            console.log("referror id:", referral.id);
             isRefered = true;
         }
 
@@ -193,25 +191,31 @@ class AuthServices {
 
             const rawToken = newUser.createEmailVerificationToken();
 
-            await newUser.save({ session });
+            if (process.env.NODE_ENV === "test") {  //for integration testing
+                await newUser.save();
+            } else {
+                await newUser.save({ session });
+            }
 
             const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
-            await sendEmail({
-                to: newUser.email,
-                subject: "Verify your email",
-                html: `
+
+            if (process.env.NODE_ENV !== "test") { //for integration testing
+                await sendEmail({
+                    to: newUser.email,
+                    subject: "Verify your email",
+                    html: `
                 <h2>Email Verification</h2>
                 <p>Click below to verify:</p>
                 <a href="${verifyLink}">${verifyLink}</a>
                 <p>Expires in 15 minutes.</p>
                 `,
-            });
+                });
+            }
 
             await session.commitTransaction();
 
 
             newUser.password = undefined;
-            console.log('Registered user:', newUser);
             return newUser;
 
         } catch (err) {

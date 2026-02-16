@@ -8,8 +8,11 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
     try {
-        await redisClient.connect();
-        console.log('redis connected');
+        if (process.env.NODE_ENV !== "test") {
+            await redisClient.connect();
+            console.log('redis connected');
+        }
+
 
         await connectDB();
 
