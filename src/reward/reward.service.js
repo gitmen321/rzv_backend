@@ -7,25 +7,17 @@ class RewardServices {
             this.tokenTransactionRepository = tokenTransactionRepository
     }
 
-    async dailyLoginReward(user) {
-
+    async dailyReward(user) {
         const userId = user.id;
         const amount = REWARD_AMOUNTS.DAILY_LOGIN;
         const reason = REWARD_REASON.DAILY_LOGIN;
-
         const session = await mongoose.startSession();
-
         try {
-
             session.startTransaction();
-
             const isRewarded = await this.tokenTransactionRepository.findTodayReward(userId, reason, session);
-
             if (isRewarded) {
                 throw new Error("ALREADY_REWARDED_TODAY");
             }
-
-
             await this.walletRepository.incrementBalance(userId, amount, session);
             await this.tokenTransactionRepository.createTransaction({
                 user: userId,
@@ -36,7 +28,6 @@ class RewardServices {
             },
                 session
             );
-
             await session.commitTransaction();
             console.log('rewardservice is succefully calling');
             return {
@@ -48,7 +39,7 @@ class RewardServices {
             }
 
             if (err.message === 'ALREADY_REWARDED_TODAY') {
-                return;
+                throw err;
             }
             throw err;
         } finally {

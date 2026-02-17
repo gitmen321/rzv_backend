@@ -46,7 +46,7 @@ class AuthServices {
         });
 
 
-        await this.rewardServices.dailyLoginReward(user);
+        // await this.rewardServices.dailyLoginReward(user); 
         user.password = undefined;
 
         if (user.role == 'admin') {
