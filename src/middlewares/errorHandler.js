@@ -30,7 +30,7 @@ const errorHandler = (err, req, res, next) => {
 
     // 2. Map your custom error messages to status codes
     const errorMap = {
-        "EMAIL_ALREADY_VERIFIED": 400,
+        "EMAIL_ALREADY_VERIFIED": 409,
         "INVALID_REFRESH_TOKEN": 400,
         "ADMIN_REGISTRATION_DIABLED": 400,
         "USER_NOT_EXISTED": 400,

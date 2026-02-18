@@ -6,7 +6,6 @@ const rateLimit = require('../middlewares/rateLimit.middleware');
 const isLoginvalid = require('../middlewares/login_middleware');
 const authController = require('./auth.controller');
 
-const isTest = process.env.NODE_ENV === "test";
 
 router.post('/login', rateLimit({
     windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),

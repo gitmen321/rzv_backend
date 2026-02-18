@@ -339,7 +339,9 @@ class AuthServices {
 
 
         } catch (err) {
-            await session.abortTransaction();
+            if (session.inTransaction()) {
+                await session.abortTransaction();
+            }
             console.error("Transaction failed, rolling back changes", err);
             throw err;
         }
