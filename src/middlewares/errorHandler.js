@@ -31,7 +31,7 @@ const errorHandler = (err, req, res, next) => {
     // 2. Map your custom error messages to status codes
     const errorMap = {
         "EMAIL_ALREADY_VERIFIED": 409,
-        "INVALID_REFRESH_TOKEN": 400,
+        "INVALID_REFRESH_TOKEN": 401,
         "ADMIN_REGISTRATION_DIABLED": 400,
         "USER_NOT_EXISTED": 400,
         "INVALID_CREDENTIALS": 401,
@@ -46,7 +46,8 @@ const errorHandler = (err, req, res, next) => {
         "WALLET_NOT_EXISTED": 400,
         "TRANSACTIONS_NOT_EXISTED": 400,
         "REFERRAL_CODE_IS_NOT_VALID": 400,
-        "ALREADY_REWARDED_TODAY": 409
+        "ALREADY_REWARDED_TODAY": 409,
+        "NOT_POSSIBLE": 400
     };
 
     const statusCode = errorMap[err.message] || err.statusCode || 500;

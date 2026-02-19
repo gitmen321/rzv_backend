@@ -49,7 +49,7 @@ class AdminServices {
         }
     };
 
-     async getUserByName(name) {
+    async getUserByName(name) {
         const user = await this.userRepository.findByName(name);
 
         if (!user) {
@@ -134,6 +134,10 @@ class AdminServices {
     async updateUserStatus(id, isActive, adminId) {
 
         const currentStatus = await this.userRepository.findByIdAdmin(id);
+
+        if (currentStatus.id === adminId) {
+            throw new Error("NOT_POSSIBLE");
+        }
         if (currentStatus.isActive === isActive) {
             throw new Error('CURRENT_STATUS_IS_SAME');
         }

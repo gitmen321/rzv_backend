@@ -5,6 +5,7 @@ const UserRepository = require('../repositories/user.repositories');
 
 const AuthServices = require('./auth.service');
 const RewardServices = require('../reward/reward.service');
+const { response } = require('express');
 
 const authRepository = new AuthRepository();
 const walletRepository = new WalletRepository();
@@ -62,10 +63,15 @@ exports.register = async (req, res, next) => {
     try {
         const registeredUser = await authServices.register(newUser);
 
-        res.status(201).json({
+        const response = {
             message: "Verification Email sent to your Email Address. Please verify your email to activate your account",
-            email: registeredUser.email
-        });
+
+            email: registeredUser.newEmail
+        };
+        if (process.env.EXPOSE_VERIFY_TOKEN === "true") {
+            response.verifyToken = registeredUser.rawToken
+        }
+        res.status(200).json(response);
 
     } catch (err) {
         next(err);
@@ -108,7 +114,7 @@ exports.resetPassword = async (req, res, next) => {
     try {
         const token = req.params.token;
         const { newPassword } = req.body;
-        const result = await authServices.resetPassword(token, newPassword);
+        await authServices.resetPassword(token, newPassword);
 
         res.status(200).json({
             message: "Password updated successfully"

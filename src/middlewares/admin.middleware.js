@@ -13,6 +13,11 @@ const validateObjectId = (req, res, next) => {
 }
 
 const validStatusUpdate = (req, res, next) => {
+    if (!req.body) {
+        return res.status(400).json({
+            message: "isActive field required"
+        });
+    }
     const { isActive } = req.body;
     if (typeof isActive !== 'boolean') {
         return res.status(400).json({
@@ -23,6 +28,12 @@ const validStatusUpdate = (req, res, next) => {
 }
 
 const validAdjustBalance = (req, res, next) => {
+
+    if (!req.body) {
+        return res.status(400).json({
+            message: "amount, type, reason required"
+        });
+    }
 
     const { amount, type, reason } = req.body;
 
@@ -49,13 +60,23 @@ const validWalletSummaryByDate = (req, res, next) => {
 
     if (!queryDate) {
         return res.status(400).json({
-            message: "SINGLE_DATE_REQUIRED"
+            message: "SINGLE_DATE_REQUIRED EG: date = year-month-date"
+        });
+    }
+    if (isNaN(queryDate.getTime())) {
+        return res.status(400).json({
+            message: "INVALID_DATE_FORMAT_PROVIDED"
         });
     }
     next();
 }
 
 const valdateRange = (req, res, next) => {
+    if (!req.query) {
+        return res.status(400).json({
+            message: "START AND END DATE REQUIRED"
+        });
+    }
     const { start, end } = req.query;
 
     if (!start || !end) {
@@ -66,7 +87,7 @@ const valdateRange = (req, res, next) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
 
-    
+
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
         return res.status(400).json({
             message: "INVALID_DATE_FORMAT_PROVIDED"
@@ -75,7 +96,7 @@ const valdateRange = (req, res, next) => {
 
     if (start >= end) {
         return res.status(400).json({
-            message: "START DATE SHULD BE LESSTHAN END DATE"
+            message: "START DATE SHOULD BE LESSTHAN END DATE"
         });
     }
 

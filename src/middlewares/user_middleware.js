@@ -145,6 +145,12 @@ const emailVerifyValidation = (req, res, next) => {
 }
 
 const resetPasswordValidation = (req, res, next) => {
+    
+    if (!req.body) {
+        return res.status(400).json({
+            message: "NEW_PASSWORD_REQUIRED"
+        });
+    }
     const { newPassword, confirmPassword } = req.body;
     if (!req.params.token) {
         return res.status(400).json({
@@ -156,6 +162,7 @@ const resetPasswordValidation = (req, res, next) => {
             message: "INVALID_TOKEN_FORMAT"
         });
     }
+
     if (!newPassword) {
         return res.status(400).json({
             message: "NEW_PASSWORD_REQUIRED"

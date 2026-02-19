@@ -211,7 +211,11 @@ class AuthServices {
 
 
             newUser.password = undefined;
-            return newUser;
+            const newEmail = newUser.email;
+            return {
+                newEmail,
+                rawToken
+            };
 
         } catch (err) {
             await session.abortTransaction();

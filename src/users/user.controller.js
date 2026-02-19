@@ -89,7 +89,7 @@ exports.getTransaction = async (req, res, next) => {
 exports.getReferralDetails = async (req, res, next) => {
     try {
         const id = req.user.id;
-        const result = await userService.getReferralDetails(id);
+        const result = await userService.getReferralDetaails(id);
 
         res.status(200).json({
             message: "User referral details",
