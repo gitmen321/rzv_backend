@@ -9,6 +9,7 @@ const validDateRange = (req, res, next) => {
     }
     if (!start || !end) {
         return res.status(400).json({
+            success: false,
             message: "BOTH_START_AND_END_DATE_REQUIRED_FOR_RANGE"
         });
     }
@@ -17,12 +18,14 @@ const validDateRange = (req, res, next) => {
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
         return res.status(400).json({
+            success: false,
             message: "INVALID_DATE_FORMAT_PROVIDED"
         });
     }
 
     if (startDate >= endDate) {
         return res.status(400).json({
+            success: false,
             message: "START_DATE_SHOULD_BE_LESS_THAN_END_DATE"
         });
     }
@@ -34,6 +37,7 @@ const isValidUpdate = (req, res, next) => {
 
     if (!req.body) {
         return res.status(400).json({
+            success: false,
             message: "body required",
         });
     }
@@ -42,6 +46,7 @@ const isValidUpdate = (req, res, next) => {
         if (name === undefined) {
             console.log("name sould be defined");
             return res.status(400).json({
+                success: false,
                 message: "Name required",
             });
         }
@@ -49,6 +54,7 @@ const isValidUpdate = (req, res, next) => {
     if (age) {
         if (typeof age !== "number") {
             return res.status(400).json({
+                success: false,
                 message: "age must be a number"
             });
         }
@@ -67,6 +73,7 @@ const isValid = (req, res, next) => {
         console.log(name, email);
         console.log('middleware Invalid');
         return res.status(400).json({
+            success: false,
             message: "Name and Email & password required",
 
         });
@@ -76,6 +83,7 @@ const isValid = (req, res, next) => {
     if (age) {
         if (typeof age !== "number") {
             return res.status(400).json({
+                success: false,
                 message: "age must be a number"
             });
         }
@@ -91,6 +99,7 @@ const passwordConfirmation = (req, res, next) => {
 
     if (!password || !confirmPassword) {
         return res.status(400).json({
+            success: false,
             message: "PASSWORD & CONFIRMPASSWORD MUSTBE REQUIRED"
         });
     }
@@ -98,12 +107,14 @@ const passwordConfirmation = (req, res, next) => {
     if (password !== confirmPassword) {
         console.log('password not verified');
         return res.status(400).json({
+            success: false,
             message: "PASSWORD_MISMATCH"
         });
     }
 
     if (password.length < 8) {
         return res.status(400).json({
+            success: false,
             message: "PASSWORD_TOO_SHORT"
         });
     }
@@ -115,6 +126,7 @@ const passwordConfirmation = (req, res, next) => {
 const forgotPasswordValidation = (req, res, next) => {
     if (!req.body || req.body.email === undefined) {
         return res.status(400).json({
+            success: false,
             message: "Email required"
         });
     }
@@ -123,6 +135,7 @@ const forgotPasswordValidation = (req, res, next) => {
 
     if (!emailRegrex.test(cleanedEmail)) {
         return res.status(400).json({
+            success: false,
             message: "INVALID_EMAIL_FORMAT"
         });
     }
@@ -132,11 +145,13 @@ const forgotPasswordValidation = (req, res, next) => {
 const emailVerifyValidation = (req, res, next) => {
     if (!req.params.token) {
         return res.status(400).json({
+            success: false,
             message: "RESET_TOKEN_REQUIRED"
         });
     }
     if (req.params.token.length < 20) {
         return res.status(400).json({
+            success: false,
             message: "INVALID_TOKEN_FORMAT"
         });
     }
@@ -148,38 +163,45 @@ const resetPasswordValidation = (req, res, next) => {
     
     if (!req.body) {
         return res.status(400).json({
+            success: false,
             message: "NEW_PASSWORD_REQUIRED"
         });
     }
     const { newPassword, confirmPassword } = req.body;
     if (!req.params.token) {
         return res.status(400).json({
+            success: false,
             message: "RESET_TOKEN_REQUIRED"
         });
     }
     if (req.params.token.length < 20) {
         return res.status(400).json({
+            success: false,
             message: "INVALID_TOKEN_FORMAT"
         });
     }
 
     if (!newPassword) {
         return res.status(400).json({
+            success: false,
             message: "NEW_PASSWORD_REQUIRED"
         });
     }
     if (!confirmPassword) {
         return res.status(400).json({
+            success: false,
             message: "CONFIRM_PASSWORD_REQUIRED"
         });
     }
     if (newPassword !== confirmPassword) {
         return res.status(400).json({
+            success: false,
             message: "PASSWORD_MISMATCH"
         });
     }
     if (newPassword.length < 8) {
         return res.status(400).json({
+            success: false,
             message: "PASSWORD_TOO_SHORT"
         });
     }
@@ -191,6 +213,7 @@ const validateEmail = (req, res, next) => {
 
     if (!email) {
         return res.status(400).json({
+            success: false,
             message: "Email Required"
         });
     }
@@ -198,6 +221,7 @@ const validateEmail = (req, res, next) => {
 
     if (!emailRegrex.test(email)) {
         return res.status(400).json({
+            success: false,
             message: "INVALID_EMAIL_FORMAT"
         });
     }
@@ -211,6 +235,7 @@ const validateName = (req, res, next) => {
 
     if (!name) {
         return res.status(400).json({
+            success: false,
             message: "Name required"
         });
     }
@@ -218,6 +243,7 @@ const validateName = (req, res, next) => {
 
     if (!nameRegex.test(name)) {
         return res.status(400).json({
+            success: false,
             message: "Invalid name format"
         });
     }
@@ -231,6 +257,7 @@ const validateObjectId = (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         console.log("invalid id");
         return res.status(400).json({
+            success: false,
             message: "Invalid User Id format"
         });
 
