@@ -25,7 +25,7 @@ app.use('/api', rewardRoutes);
 app.get('/api/health', (req, res) => {
     res.status(200).json({
         message: "'Server is running",
-        Timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
     });
 });
 

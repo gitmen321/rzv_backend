@@ -47,7 +47,7 @@ const auditSchema = new mongoose.Schema(
         },
     },
     {
-        Timestamps: true
+        timestamps: true
     }
 );
 

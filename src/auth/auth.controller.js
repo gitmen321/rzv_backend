@@ -75,7 +75,7 @@ exports.register = async (req, res, next) => {
         if (process.env.EXPOSE_VERIFY_TOKEN === "true") {
             response.verifyToken = registeredUser.rawToken
         }
-        res.status(200).json(response);
+        res.status(201).json(response);
 
     } catch (err) {
         next(err);
