@@ -282,6 +282,8 @@ class AuthServices {
         }
         console.log("username;", user.name);
 
+        await this.refreshTokenRepository.revokeAllByUser(user.id);
+
         user.password = newPassword;
 
         user.resetPasswordToken = undefined;
