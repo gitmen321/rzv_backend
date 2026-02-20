@@ -10,11 +10,13 @@ const isAuthenticated = async (req, res, next) => {
         const authHeader = req.headers.authorization;
 
         if (!authHeader) return res.status(401).json({
+            success: false,
             message: AUTH_ERRORS.UNAUTHORIZED
         });
 
         if (!authHeader.startsWith("Bearer")) {
             return res.status(401).json({
+                success: false,
                 message: AUTH_ERRORS.UNAUTHORIZED
             });
         }
@@ -26,12 +28,14 @@ const isAuthenticated = async (req, res, next) => {
 
         if (!user) {
             return res.status(404).json({
+                success: false,
                 message: "USER_NOT_FOUND"
             });
 
         }
         if (!user.isActive) {
             return res.status(403).json({
+                success: false,
                 message: "ACCOUNT_DISABLED"
             });
         }
@@ -41,6 +45,7 @@ const isAuthenticated = async (req, res, next) => {
 
         if (!req.user || !req.user.id) {
             return res.status(401).json({
+                success: false,
                 message: AUTH_ERRORS.UNAUTHORIZED
             });
         }
@@ -50,6 +55,7 @@ const isAuthenticated = async (req, res, next) => {
     } catch (err) {
         console.log('error is:', err);
         return res.status(401).json({
+            success: false,
             message: AUTH_ERRORS.INVALID_TOKEN,
         });
 
