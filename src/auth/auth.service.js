@@ -312,8 +312,6 @@ class AuthServices {
         user.emailVerifyToken = undefined;
         user.emailVerifyExpires = undefined;
 
-        console.log("userrefererd:", user.referredBy);
-
         const session = await mongoose.startSession();
 
         try {
@@ -330,9 +328,6 @@ class AuthServices {
                     await this.rewardServices.referralReward(referredUser, session);
 
                     user.referralRewardClaimed = true;
-
-                    console.log("Inside the if in verify-email");
-
                     await referredUser.save({ session });
                 }
             }

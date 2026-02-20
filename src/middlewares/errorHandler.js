@@ -48,7 +48,9 @@ const errorHandler = (err, req, res, next) => {
         "ALREADY_REWARDED_TODAY": 409,
         "NOT_POSSIBLE": 400,
         "INVALID_CREDENTIALS": 401,
-        "EMAIL AND PASSWORD REQUIRED":400
+        "EMAIL AND PASSWORD REQUIRED": 400,
+        "ACCOUNT_DISABLED": 400,
+        "TOKEN_REUSE_DETECTED": 400
     };
 
     const statusCode = errorMap[err.message] || err.statusCode || 500;

@@ -24,7 +24,7 @@ router.post('/register',
 router.get('/verify-email/:token', rateLimit({
     windowSeconds: 60,
     maxRequests: 5
-}), validations.emailVerifyValidation, authController.verifyEmail);
+}), validations.tokenVerifyValidation, authController.verifyEmail);
 
 router.post('/resend-verification', rateLimit({
     windowSeconds: 60,
@@ -36,7 +36,7 @@ router.post('/refresh-token', rateLimit({
     windowSeconds: 60,
     maxRequests: 5,
     keyPrefix: "refreshToken"
-}), authController.refreshToken);
+}), validations.refreshTokenValidation, authController.refreshToken);
 
 router.post('/logout', isAuthenticated, authController.logout);
 

@@ -142,11 +142,26 @@ const forgotPasswordValidation = (req, res, next) => {
     next();
 }
 
-const emailVerifyValidation = (req, res, next) => {
+const refreshTokenValidation = (req, res, next) => {
+
+    const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!refreshToken) {
+        return res.status(400).json({
+            success: false,
+            message: "REFRESH_TOKEN_REQUIRED"
+        });
+    }
+
+    req.refreshToken = refreshToken;
+    next();
+}
+
+const tokenVerifyValidation = (req, res, next) => {
     if (!req.params.token) {
         return res.status(400).json({
             success: false,
-            message: "RESET_TOKEN_REQUIRED"
+            message: "TOKEN_REQUIRED"
         });
     }
     if (req.params.token.length < 20) {
@@ -160,7 +175,7 @@ const emailVerifyValidation = (req, res, next) => {
 }
 
 const resetPasswordValidation = (req, res, next) => {
-    
+
     if (!req.body) {
         return res.status(400).json({
             success: false,
@@ -266,4 +281,8 @@ const validateObjectId = (req, res, next) => {
     next();
 }
 
-module.exports = { validDateRange, isValidUpdate, isValid, validateObjectId, validateName, passwordConfirmation, validateEmail, forgotPasswordValidation, resetPasswordValidation, emailVerifyValidation };
+module.exports = {
+    validDateRange, isValidUpdate, isValid, validateObjectId, validateName, passwordConfirmation,
+    validateEmail, forgotPasswordValidation, resetPasswordValidation,
+    tokenVerifyValidation, refreshTokenValidation
+};

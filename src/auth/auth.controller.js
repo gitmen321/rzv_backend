@@ -38,15 +38,20 @@ exports.loginValidation = async (req, res, next) => {
 
 exports.refreshToken = async (req, res, next) => {
     try {
-        const { refreshToken } = req.body;
+        const tokens = await authServices.refreshToken(req.refreshToken);
 
-        if (!refreshToken) {
-            return res.status(400).json({
-                message: "REFRESH_TOKEN_REQUIRED",
+        if (req.cookies?.refreshToken) {
+            res.cookie("refreshToken", tokens.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge: 7 * 24 * 60 * 1000
+            });
+            return res.status(200).json({
+                message: "TOKEN_REFRESHED",
+                accessToken: tokens.accessToken
             });
         }
-
-        const tokens = await authServices.refreshToken(refreshToken);
 
         return res.status(200).json({
             message: "TOKEN_REFRESHED",
@@ -65,7 +70,6 @@ exports.register = async (req, res, next) => {
 
         const response = {
             message: "Verification Email sent to your Email Address. Please verify your email to activate your account",
-
             email: registeredUser.newEmail
         };
         if (process.env.EXPOSE_VERIFY_TOKEN === "true") {
@@ -129,11 +133,10 @@ exports.resetPassword = async (req, res, next) => {
 exports.verifyEmail = async (req, res, next) => {
     try {
         const token = req.params.token;
-        const result = await authServices.verifyEmail(token);
+        await authServices.verifyEmail(token);
 
         return res.status(200).json({
-            message: "Registration Successful",
-            result: result
+            message: "Email verified successfully",
         });
 
     } catch (err) {
