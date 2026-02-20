@@ -34,7 +34,6 @@ const errorHandler = (err, req, res, next) => {
         "INVALID_REFRESH_TOKEN": 401,
         "ADMIN_REGISTRATION_DIABLED": 400,
         "USER_NOT_EXISTED": 400,
-        "INVALID_CREDENTIALS": 401,
         "INACTIVE_USER": 403,
         "USER_NOT_FOUND": 404,
         "USER_NAME_NOT_FOUND": 404,
@@ -47,7 +46,9 @@ const errorHandler = (err, req, res, next) => {
         "TRANSACTIONS_NOT_EXISTED": 400,
         "REFERRAL_CODE_IS_NOT_VALID": 400,
         "ALREADY_REWARDED_TODAY": 409,
-        "NOT_POSSIBLE": 400
+        "NOT_POSSIBLE": 400,
+        "INVALID_CREDENTIALS": 401,
+        "EMAIL AND PASSWORD REQUIRED":400
     };
 
     const statusCode = errorMap[err.message] || err.statusCode || 500;
