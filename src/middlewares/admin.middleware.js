@@ -64,6 +64,8 @@ const validAdjustBalance = (req, res, next) => {
 
 const validWalletSummaryByDate = (req, res, next) => {
     const queryDate = req.query.date;
+    const date = new Date(queryDate);
+
 
     if (!queryDate) {
         return res.status(400).json({
@@ -71,7 +73,7 @@ const validWalletSummaryByDate = (req, res, next) => {
             message: "SINGLE_DATE_REQUIRED EG: date = year-month-date"
         });
     }
-    if (isNaN(queryDate.getTime())) {
+    if (isNaN(date.getTime())) {
         return res.status(400).json({
             success: false,
             message: "INVALID_DATE_FORMAT_PROVIDED"

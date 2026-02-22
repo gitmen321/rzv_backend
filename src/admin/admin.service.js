@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const createAuditLog = require('../audit/audit.helper');
+//const invalidateWalletRelatedCache = require("../infrastructure/cache/cache.service");
+const eventBus = require("../core/eventBus");
 
 class AdminServices {
     constructor(userRepository, walletRepository, tokenTransactionRepository) {
@@ -199,6 +201,12 @@ class AdminServices {
                 session
             );
             await session.commitTransaction();
+
+            eventBus.emit("WALLET_UPDATED", {
+                userId,
+                amount
+            });
+            
             console.log('user:', user);
 
             const newUserWallet = await this.walletRepository.findByUserId(userId);

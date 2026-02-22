@@ -1,9 +1,11 @@
 require('dotenv').config();
+require("./src/infrastructure/cache/cache.listener");
 
 const connectDB = require('./src/config/db');
 const redisClient = require('./src/config/redis');
 const app = require('./src/app');
 const PORT = process.env.PORT || 3000;
+
 
 
 async function startServer() {

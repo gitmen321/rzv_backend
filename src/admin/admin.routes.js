@@ -7,9 +7,10 @@ const adminController = require('../admin/admin.controller');
 const validations = require('../middlewares/admin.middleware');
 const rateLimit = require('../middlewares/rateLimit.middleware');
 const userValidation = require('../middlewares/user_middleware');
+const cache = require("../middlewares/cache.middleware");
 
 
-router.get('/admin/dashboard/stats', isAuthenticated, authorizeRole(ROLE.ADMIN), adminController.getDashBoardStats);
+router.get('/admin/dashboard/stats', isAuthenticated, authorizeRole(ROLE.ADMIN), cache(() => "CACHE:admin:dashboard:stats", 60), adminController.getDashBoardStats);
 
 router.get('/admin/me', isAuthenticated, authorizeRole(ROLE.ADMIN), adminController.getCurrentMe);
 
@@ -26,13 +27,23 @@ router.get('/admin/wallet/summary', isAuthenticated, authorizeRole(ROLE.ADMIN), 
     windowSeconds: 60,
     maxRequests: 50,
     keyPrefix: 'admin-wallet'
-}), validations.validWalletSummaryByDate, adminController.getWalletSummary);
+}), validations.validWalletSummaryByDate,
+    cache((req) => {
+        const date = req.query.date || "all";
+        return `CACHE:admin:wallet:summary:${date}`;
+    }, 60),
+    adminController.getWalletSummary);
 
 router.get('/admin/wallet/summary/range', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit({
     windowSeconds: 60,
     maxRequests: 50,
     keyPrefix: 'admin-wallet-range'
-}), validations.valdateRange, adminController.getWalletSummaryInRange);
+}), validations.valdateRange,
+    cache((req) => {
+        const { start, end, page = 1, limit = 10 } = req.query;
+        return `CACHE:admin:wallet:range:${start}:${end}:${page}:${limit}`;
+    }, 60),
+    adminController.getWalletSummaryInRange);
 
 router.get('/admin/users/:id', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit({
     windowSeconds: 60,

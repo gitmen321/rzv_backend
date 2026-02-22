@@ -1,5 +1,6 @@
 const { REWARD_AMOUNTS, REWARD_REASON } = require('../constants/reward.constants');
 const mongoose = require('mongoose');
+const eventBus = require("../core/eventBus");
 
 class RewardServices {
     constructor(walletRepository, tokenTransactionRepository) {
@@ -24,12 +25,18 @@ class RewardServices {
                 type: 'CREDIT',
                 amount,
                 reason,
-                source: 'reward'
+                sources: 'reward'
             },
                 session
             );
+
             await session.commitTransaction();
+            
             console.log('rewardservice is succefully calling');
+            eventBus.emit("WALLET_UPDATED", {
+                userId,
+                amount
+            });
             return {
                 amount, reason, message: "Daily login reward granted"
             };

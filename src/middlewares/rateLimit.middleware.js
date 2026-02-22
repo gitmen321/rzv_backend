@@ -33,7 +33,7 @@ const rateLimit = ({
             next();
 
         } catch (err) {
-            console.error("RateLimiting error:", err);
+            console.warn("RateLimiting error:", err);
             next();
         }
     }
