@@ -11,6 +11,11 @@ const rateLimit = ({
 
             if (process.env.NODE_ENV === "test") return next(); //for integration testing
 
+            if (!redisClient.isReady) {
+                console.warn(`[Rate Limit] Redis not ready. Bypassing for IP/User: ${req.user?.id || req.ip}`);
+                return next();
+            }
+
             const identifier = req.user?.id || req.ip;
             const redisKey = `${keyPrefix}:${identifier}`;
             const currentCount = await redisClient.incr(redisKey);
@@ -29,7 +34,7 @@ const rateLimit = ({
 
         } catch (err) {
             console.error("RateLimiting error:", err);
-            next(err);
+            next();
         }
     }
 }

@@ -9,13 +9,17 @@ const PORT = process.env.PORT || 3000;
 async function startServer() {
     try {
         if (process.env.NODE_ENV !== "test") {
-            await redisClient.connect();
-            console.log('redis connected');
+
+            try {
+                await redisClient.connect();
+                console.log('redis connected');
+
+            } catch (redisErr) {
+                console.warn('Redis connection failed, continue without redi', redisErr.message);
+            }
         }
-
-
+        
         await connectDB();
-
 
         app.listen(PORT, () => {
             console.log(`SERVER STARTED ON PORT ${PORT}`);
