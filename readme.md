@@ -269,6 +269,8 @@ JWT Strategy
 Access tokens are used only for identity.
 Authorization and account status are always validated from the database.
 
+On every authenticated request, user identity is verified via JWT and authorization data (role, account status) is fetched fresh from the database to prevent stale privilege usage.
+
 ⸻
 
 Account Protection
