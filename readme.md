@@ -1,297 +1,325 @@
-🧑‍💻 Users API Documentation
+RZV Backend API
 
-Base URL:
-/api/users
+A production-oriented backend system built using Node.js, Express, MongoDB, and Redis, implementing authentication, authorization, caching, transactions, audit logging, referral and reward systems, and automated testing.
 
-1️⃣ Create User
+⸻
 
-POST /api/users
+🚀 Core Features
 
-Create a new user.
+🔐 Authentication & Authorization
+	•	JWT Authentication
+	•	Refresh Token Rotation
+	•	Token Revocation
+	•	Email Verification Flow
+	•	Password Reset Flow
+	•	Role-Based Access Control (RBAC)
+	•	Soft Delete User Lifecycle
+	•	Real-time Account Status Validation (DB-verified on every request)
 
-Request Body
-{
-  "name": "Raaz",
-  "age": 23
-}
+⸻
 
-Response (201)
-{
-  "_id": "objectId",
-  "name": "Raaz",
-  "age": 23,
-  "createdAt": "ISODate",
-  "updatedAt": "ISODate"
-}
+⚡ Performance & Caching
+	•	Redis Integration
+	•	Cache-Aside Pattern
+	•	TTL-based caching strategy
+	•	Event-Driven Cache Invalidation
+	•	Graceful Degradation (App runs even if Redis is down)
+	•	Redis-backed Rate Limiting
 
-Validations
+⸻
 
-Required fields must be provided
+🔄 Data Consistency
+	•	MongoDB Transactions
+	•	Atomic Wallet Updates
+	•	ACID Compliance for financial operations
+	•	Event-based cache consistency
 
-Invalid input → 400 Bad Request
+⸻
 
-2️⃣ Get All Users (Pagination + Sorting + Search)
+📊 Business Systems
+	•	Referral System
+	•	Reward System
+	•	Admin Dashboard APIs
+	•	Audit Logging System
+	•	Wallet & Transaction Management
 
-GET /api/users
+⸻
 
-Query Params
-Param	Default	Description
-page	1	Page number
-limit	10	Items per page
-sortBy	createdAt	Field to sort by
-order	desc	asc or desc
-search	—	Partial match on name
-Example
-/api/users?page=1&limit=10&sortBy=name&order=asc
+🧱 Architecture
 
-Response (200)
-{
-  "data": [
-    {
-      "_id": "objectId",
-      "name": "Sherin",
-      "age": 16
-    }
-  ],
-  "meta": {
-    "page": 1,
-    "limit": 10,
-    "totalUsers": 4,
-    "totalPages": 1,
-    "hasNextPage": false,
-    "hasPrevPage": false
-  }
-}
-
-Features
-
-Pagination using MongoDB skip & limit
-
-Dynamic sorting
-
-Regex-based search
-
-Metadata in response
-
-3️⃣ Get User by ID
-
-GET /api/users/:id
-
-Fetch a single user.
-
-Response (200)
-{
-  "_id": "objectId",
-  "name": "Raaz",
-  "age": 23
-}
-
-Errors
-
-Invalid ID → 400 Bad Request
-
-User not found → 404 Not Found
-
-4️⃣ Update User
-
-PUT /api/users/:id
-
-Update an existing user.
-
-Request Body
-{
-  "name": "Raaz Updated",
-  "age": 24
-}
-
-Response (200)
-{
-  "_id": "objectId",
-  "name": "Raaz Updated",
-  "age": 24,
-  "updatedAt": "ISODate"
-}
-
-Errors
-
-Invalid data → 400 Bad Request
-
-User not found → 404 Not Found
-
-5️⃣ Delete User (Soft Delete)
-
-DELETE /api/users/:id
-
-Marks the user as inactive instead of removing permanently.
-
-Response (200)
-{
-  "message": "User deleted successfully"
-}
-
-Errors
-
-User not found → 404 Not Found
-
-🔐 Authentication (JWT)
-Login Flow
-
-User logs in using email & password
-
-On success:
-
-A JWT access token is generated
-
-Token contains:
-
-id
-
-email
-
-role
-
-Token has an expiration (JWT_EXPIRES_IN)
-
-Token Usage
-
-Send the token in request headers:
-
-Authorization: Bearer <token>
-
-🛡️ Authentication Middleware
-isAuthenticated
-
-Responsibilities:
-
-Verifies JWT token
-
-Extracts user ID
-
-Fetches fresh user data from DB
-
-Blocks access if:
-
-Token is invalid or expired
-
-User does not exist
-
-User is inactive (isActive === false)
-
-Attaches full user object to req.user
-
-This prevents access using stale or compromised tokens.
-
-🧑‍⚖️ Authorization (Role-Based Access Control)
-authorizeRole(role)
-
-Ensures the user has the required role
-
-Example:
-
-authorizeRole('admin')
-
-
-Used for admin-only routes:
-
-Get all users
-
-Update users
-
-Delete users
-
-👤 User Status Management (Soft Delete)
-
-Users are not permanently removed
-
-Deleting a user sets:
-
-isActive = false
-
-Benefits
-
-Prevents accidental data loss
-
-Maintains audit history
-
-Blocks login for inactive users
-
-Allows controlled email reuse
-
-🔄 User Lifecycle Rules
-
-Only isActive === true users can:
-
-Log in
-
-Access protected routes
-
-Inactive users:
-
-Cannot log in
-
-Cannot access APIs
-
-Are blocked even if a JWT exists
-
-🧱 Security Design Decisions
-
-JWT is used only for identity
-
-Authorization & account status are always verified from DB
-
-Prevents privilege abuse using old tokens
-
-Ensures real-time access control
-
-🧩 Middleware Summary
-Middleware	Responsibility
-isAuthenticated	Token + DB user validation
-authorizeRole	Role-based access control
-Validation MW	Request validation
-🧪 API Protection Summary
-
-Public Routes
-
-Login
-
-Create user
-
-Protected Routes
-
-Get profile
-
-Get users
-
-Update user
-
-Delete user
-
-Admin-Only Routes
-
-Get all users
-
-Update users
-
-Delete users
-
-🧠 Architecture & Learnings
-
-Layered architecture:
+Layered Architecture:
 
 Controller → Service → Repository → Database
 
+Patterns used:
+	•	Modular Monolith Architecture
+	•	Middleware Pattern
+	•	Adapter Pattern (Cache abstraction)
+	•	Cache-Aside Strategy
+	•	Event-Driven Design (Cache Invalidation)
+	•	Centralized Error Handling
+	•	Soft Delete Pattern
+	•	Repository Pattern
 
-Implemented pagination with skip & limit
+📁 Project Structure
 
-Built dynamic sorting
+src/
+ ├── admin/
+ │     ├── admin.controller.js
+ │     ├── admin.routes.js
+ │     └── admin.services.js
+ │
+ ├── audit/
+ │     ├── audit.controller.js
+ │     ├── audit.repository.js
+ │     ├── audit.routes.js
+ │     └── audit.services.js
+ │
+ ├── auth/
+ │     ├── auth.controller.js
+ │     ├── auth.routes.js
+ │     ├── auth.services.js
+ │     └── eventBus.js
+ │
+ ├── reward/
+ │     ├── reward.controller.js
+ │     ├── reward.routes.js
+ │     └── reward.services.js
+ │
+ ├── users/
+ │     ├── user.controller.js
+ │     ├── user.routes.js
+ │     └── user.services.js
+ │
+ ├── repositories/
+ │     ├── authRepository.js
+ │     ├── refreshTokenRepository.js
+ │     ├── tokenTransactionRepository.js
+ │     ├── userRepository.js
+ │     └── walletRepository.js
+ │
+ ├── models/
+ │     ├── user.js
+ │     ├── audit.js
+ │     ├── refreshToken.js
+ │     ├── tokenTransaction.js
+ │     └── wallet.js
+ │
+ ├── infrastructure/
+ │     └── cache/
+ │           ├── cache.listener.js
+ │           └── cache.service.js
+ │
+ ├── middlewares/
+ │     ├── auth.middleware.js
+ │     ├── role.middleware.js
+ │     ├── errorHandler.js
+ │     ├── logger.js
+ │     └── rateLimiter.js
+ │
+ ├── config/
+ │     ├── db.js
+ │     ├── redis.js
+ │     └── jest.config.js
+ │
+ ├── constants/
+ │     ├── auth.constants.js
+ │     └── reward.constants.js
+ │
+ ├── utils/
+ │     ├── cacheInvalidation.js
+ │     ├── generateReferral.js
+ │     ├── sendEmail.js
+ │     └── token.js
+ │
+ ├── scripts/
+ │     └── createAdmin.js
+ │
+ └── app.js
 
-Fixed query param mismatch between controller & service
+server.js
+swagger.yaml
+postman/
+tests/
 
-Learned proper error classification:
+🧪 Testing
 
-Client errors → 400
+1️⃣ Jest + Supertest (Integration Tests)
 
-Server errors → 500
+Located in:
 
-Centralized error handling for consistency
+tests/
 
+Covers:
+	•	Auth Register
+	•	Auth Login
+	•	Email Verification
+
+Run tests:
+
+npm test
+
+2️⃣ Postman Smoke Tests
+
+Collection included in:
+
+/postman
+
+Folders include:
+	•	Auth Smoke Tests
+	•	User Smoke Tests
+	•	Admin Smoke Tests
+	•	Audit Smoke Tests
+	•	Reward Smoke Tests
+	•	Secondary Flows (manual/destructive APIs)
+
+Smoke Tests are:
+	•	Idempotent
+	•	Safe to run multiple times
+	•	Fully automated
+	•	No manual token copy required
+
+Secondary Flows contain:
+	•	State-mutating endpoints
+	•	Destructive APIs
+	•	Not part of automated smoke runs
+
+⸻
+
+📘 Swagger Documentation
+
+swagger.yaml
+
+After starting server:
+
+Visit:
+http://localhost:3000/api-docs
+
+Provides interactive API documentation.
+
+⸻
+
+⚙️ Setup Instructions (Manual Mode)
+
+1️⃣ Clone Repository
+
+git clone <repo-url>
+cd rzv_backend
+
+2️⃣ Install Dependencies
+
+npm install
+
+3️⃣ Create Environment File
+
+Create .env in root:
+
+PORT=3000
+MONGO_URI=your_mongo_uri
+MONGO_TEST_URI=your_test_mongo_uri
+JWT_SECRET=your_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_EXPIRES_IN=15m
+REDIS_URL=redis://localhost:6379
+Etc
+
+4️⃣ Start Redis (Optional)
+
+If Redis is running:
+	•	Caching enabled
+	•	Rate limiting enabled
+
+If Redis is down:
+	•	App continues running
+	•	No caching
+	•	No rate limiting
+
+This ensures fault tolerance.
+
+⸻
+
+5️⃣ Create Admin User (Seed Script)
+
+node src/scripts/createAdmin.js
+
+node src/scripts/createAdmin.js
+
+This creates an admin user required for Admin Smoke Tests.
+
+6️⃣ Start Server
+
+npm run dev
+
+🛡 🔐 Security Implementation Details
+
+Password Security
+	•	Passwords are hashed using bcrypt before storage
+	•	Hashing occurs at model level (pre-save hook)
+	•	Plain passwords are never stored in database
+
+⸻
+
+JWT Strategy
+	•	Short-lived Access Tokens
+	•	Refresh Token Rotation
+	•	Refresh Tokens stored in database
+	•	Token Revocation on logout
+	•	DB verification on every protected request
+
+Access tokens are used only for identity.
+Authorization and account status are always validated from the database.
+
+⸻
+
+Account Protection
+	•	Soft Delete Pattern (isActive flag)
+	•	Inactive users cannot:
+	•	Log in
+	•	Access protected routes
+	•	Even valid JWTs are rejected if user is inactive
+
+⸻
+
+Rate Limiting
+	•	Redis-backed rate limiter
+	•	Protects against brute force & abuse
+	•	Gracefully degrades if Redis is unavailable
+
+⸻
+
+⚡ Cache Strategy
+	•	Cache-Aside Pattern
+	•	Event-Driven Invalidation
+	•	TTL-based expiration
+	•	Redis abstraction via cache service
+	•	Application survives Redis failure (Graceful Degradation)
+
+⸻
+
+🔄 Resilience Strategy
+
+System is designed to:
+	•	Run with Redis
+	•	Run without Redis
+	•	Never lose business data if cache fails
+	•	Maintain ACID consistency via MongoDB transactions
+
+⸻
+
+🧠 Engineering Highlights
+	•	Modular Monolith Design
+	•	Event-Driven Cache Invalidation
+	•	Atomic Financial Updates
+	•	Fault-Tolerant Cache Layer
+	•	Centralized Error Handling
+	•	Structured Logging Middleware
+	•	Clean Repository Abstraction
+	•	Production-ready Testing Strategy
+
+⸻
+
+🔮 Upcoming Improvements
+	•	Dockerization (Mongo + Redis + App containers)
+	•	GitHub Actions CI Pipeline
+	•	Containerized Infrastructure
+	•	Production Deployment
