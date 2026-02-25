@@ -1,0 +1,1374 @@
+{
+  "info": {
+    "_postman_id": "46185c9e-393d-4dda-9cb2-e50527564dbb",
+    "name": "RZV Backend API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51245899",
+    "_collection_link": "https://go.postman.co/collection/51245899-46185c9e-393d-4dda-9cb2-e50527564dbb?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth Smoke Tests",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "let randomNumber = Math.floor(Math.random() * 100000);\r",
+                  "let testEmail = `testuser${randomNumber}@gmail.com`;\r",
+                  "pm.environment.set(\"testEmail\", testEmail);\r",
+                  "pm.environment.set(\"testPassword\", \"Password123\");\r",
+                  "\r",
+                  "pm.environment.set(\"testName\", \"Postman Test User\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"status code should be 200 or 201\", function () {\r",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"response should contain message\", function () {\r",
+                  "    let jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.have.property(\"message\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User object should exist\", function () {\r",
+                  "    let jsonData = pm.response.json();\r",
+                  "    pm.environment.set(\"registeredEmail\", jsonData.email);\r",
+                  "\r",
+                  "    if (jsonData.verifyToken) {\r",
+                  "        pm.environment.set(\"verifyToken\", jsonData.verifyToken);\r",
+                  "    }\r",
+                  "\r",
+                  "\r",
+                  "    if (jsonData.user) {\r",
+                  "        pm.expect(jsonData.user).to.be.an(\"object\");\r",
+                  "        pm.expect(jsonData.user).to.have.property(\"email\");\r",
+                  "    }\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{testName}}\",\r\n    \"email\": \"{{testEmail}}\",\r\n    \"referralCode\": \"RASI3182\",\r\n    \"password\": \"{{testPassword}}\",\r\n    \"confirmPassword\": \"{{testPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verifyEmail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Registration successfully or email successfully\", function(){\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/verify-email/{{verifyToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "verify-email",
+                "{{verifyToken}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login should return 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Login message is correct\", function () {\r",
+                  "    pm.expect(pm.response.json().message).to.eql(\"login successful\");\r",
+                  "});\r",
+                  "pm.test(\"Access token and refreshToken returned\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.user).to.have.property(\"accessToken\");\r",
+                  "    pm.expect(jsonData.user).to.have.property(\"refreshToken\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Save tokens into environment\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.environment.set(\"accessToken\", jsonData.user.accessToken);\r",
+                  "    pm.environment.set(\"refreshToken\", jsonData.user.refreshToken);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "console.log(\"Tokens saved successfully!\");"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{registeredEmail}}\",\r\n    \"password\": \"{{testPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "refreshToken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Refresh Token should succeed\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"response should return new accessToken\", function () {\r",
+                  "    pm.expect(jsonData.accessToken).to.be.a(\"string\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"response should return new refreshToken\", function () {\r",
+                  "    pm.expect(jsonData.refreshToken).to.be.a(\"string\");\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "pm.environment.set(\"refreshToken\", jsonData.refreshToken);\r",
+                  "pm.environment.set(\"accessToken\", jsonData.accessToken);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Logout should succeed\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const jsonData = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Logout message should match\", function () {\r",
+                  "    pm.expect(jsonData.message).to.eql(\"USER_LOGGED_OUT\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"response should contain userId\", function(){\r",
+                  "    pm.expect(jsonData.user).to.not.be.undefined;\r",
+                  "\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth Secondary flows",
+      "item": [
+        {
+          "name": "resendverification",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{registeredEmail}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/resend-verification",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resend-verification"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "forgotPassword",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"raazchalil@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resetPassword",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"newPassword\": \"raazch2002\",\r\n    \"confirmPassword\": \"raazch2002\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/reset-password/885097b59e9ded95b70ed97437e7c36dcc25abf5bdd83b934eb157d602f5a2b6",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reset-password",
+                "885097b59e9ded95b70ed97437e7c36dcc25abf5bdd83b934eb157d602f5a2b6"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Smoke Tests",
+      "item": [
+        {
+          "name": "User-me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code should be 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"response should contain message\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User object should exist\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.have.property(\"user\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User should contain email and role\", function () {\r",
+                  "    const res = pm.response.json();\r",
+                  "    pm.expect(res.user).to.have.property(\"email\");\r",
+                  "    pm.expect(res.user).to.have.property(\"role\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getwallet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code should be 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain user wallet information\", function () {\r",
+                  "    pm.expect(res).to.have.property('data');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Wallet should contain balance\", function () {\r",
+                  "    pm.expect(res.data).to.have.property('balance');\r",
+                  "})"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/wallet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "wallet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getTransactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Transactoins return Status code should be 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain Transactoins array\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"data\");\r",
+                  "    pm.expect(res.data).to.be.an(\"array\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/transactions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "transactions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getReferraldetails",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Transactoins return Status code should be 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain referral object\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"data\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Referral object should contain totalAmount and totalCount\", function () {\r",
+                  "    pm.expect(res.data).to.have.property(\"totalAmount\");\r",
+                  "    pm.expect(res.data).to.have.property(\"totalCount\");\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/user/referral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "referral"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update-profile",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const randomName = \"User_\" + Math.floor(Math.random() * 10000);\r",
+                  "\r",
+                  "pm.environment.set(\"newName\", randomName);\r",
+                  "\r",
+                  "console.log(\"generated new name\", randomName);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Update profile return Status code should be 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should confirm user updated\", function () {\r",
+                  "    pm.expect(res.message).to.include(\"updated\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Updated user object should exist\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"user\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User should contain updated name\", function () {\r",
+                  "    pm.expect(res.user).to.have.property(\"name\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Updated name should match sent name\", function () {\r",
+                  "    pm.expect(res.user.name).to.eql(pm.environment.get(\"newName\")); // Assuming newName is a Postman environment variable\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{newName}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user/update",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User secondary flows",
+      "item": [
+        {
+          "name": "delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Raaz123\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user/delete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "delete"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Smoke Tests",
+      "item": [
+        {
+          "name": "admin-login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Save tokens into environment\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.environment.set(\"accessToken\", jsonData.user.accessToken);\r",
+                  "    pm.environment.set(\"refreshToken\", jsonData.user.refreshToken);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"{{adminTestEmail}}\",\r\n    \"password\": \"{{adminTestPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin-me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin profile returns 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain admin data object\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"data\");\r",
+                  "    pm.expect(res.data).to.have.property(\"email\");\r",
+                  "    pm.expect(res.data).to.have.property(\"role\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Role must be admin\", function () {\r",
+                  "    pm.expect(res.data.role).to.eql(\"admin\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admindashboardstats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Dashboard stats returns 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Stats should contain users object\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"users\");\r",
+                  "    pm.expect(res.users).to.have.property(\"total\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Wallet stats should exist\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"wallet\");\r",
+                  "    pm.expect(res.wallet).to.have.property(\"totalBalance\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin-getUsers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin getUsers returns 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain users array\", function () {\r",
+                  "    pm.expect(res.user).to.have.property(\"data\");\r",
+                  "    pm.expect(res.user.data).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Save first userId for next requests\", function () {\r",
+                  "    if (res.user.data.length > 0) {\r",
+                  "        pm.environment.set(\"adminUserId\", res.user.data[1]._id);\r",
+                  "    }\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin-getUserby_id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Get user by ID returns 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain user object\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"user\");\r",
+                  "    pm.expect(res.user).to.have.property(\"_id\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User ID should match stored ID\", function () {\r",
+                  "    pm.expect(res.user._id).to.eql(pm.environment.get(\"adminUserId\"));\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{adminUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{adminUserId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin-getUserwalletbyid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Get user wallet returns 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Wallet response must contain wallet object\", function () {\r",
+                  "    pm.expect(res.data).to.have.property(\"wallet\");\r",
+                  "    pm.expect(res.data.wallet).to.have.property(\"balance\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Transactions must be an array\", function () {\r",
+                  "    pm.expect(res.data).to.have.property(\"transactions\");\r",
+                  "    pm.expect(res.data.transactions).to.be.an(\"array\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{adminUserId}}/wallet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{adminUserId}}",
+                "wallet"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Secondary Flows",
+      "item": [
+        {
+          "name": "admin-status_change",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"isActive\": false\r\n\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/698b0055b9041d68470ea3c4/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "698b0055b9041d68470ea3c4",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin-adjust-walletbalance",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"amount\": 20,\r\n    \"type\": \"CREDIT\",\r\n    \"reason\": \"chumma\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{adminUserId}}/wallet",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{adminUserId}}",
+                "wallet"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin- getUserbyname",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "admin-wallet-summaryinRange",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/wallet/summary/range?start=2026-02-1&end=2026-02-19&limit=3",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "wallet",
+                "summary",
+                "range"
+              ],
+              "query": [
+                {
+                  "key": "start",
+                  "value": "2026-02-1"
+                },
+                {
+                  "key": "end",
+                  "value": "2026-02-19"
+                },
+                {
+                  "key": "limit",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "admin-wallet-summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/wallet/summary?date=2026-02-19",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "wallet",
+                "summary"
+              ],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-02-19"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Audit Smoke Test",
+      "item": [
+        {
+          "name": "get-audit-logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Audit logs should return 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain logs array\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"data\");\r",
+                  "    pm.expect(res.data).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Audit logs should have message\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"message\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"amount\": 20,\r\n    \"type\": \"CREDIT\",\r\n    \"reason\": \"chumma\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/audit-logs?limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "audit-logs"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-recent-activities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Recent activities should return 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain activities array\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"data\");\r",
+                  "    pm.expect(res.data).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Message should exist\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"message\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/recent/audit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "recent",
+                "audit"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reward Smoke Test",
+      "item": [
+        {
+          "name": "daily-reward",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Daily reward should return status 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const res = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response should contain amount\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"amount\");\r",
+                  "    pm.expect(res.amount).to.be.a(\"number\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response should contain reason\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"reason\");\r",
+                  "    pm.expect(res.reason).to.eql(\"DAILY_REWARD\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response should contain correct message\", function () {\r",
+                  "    pm.expect(res).to.have.property(\"message\");\r",
+                  "    pm.expect(res.message).to.eql(\"Daily login reward granted\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reward/daily-reward",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reward",
+                "daily-reward"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
