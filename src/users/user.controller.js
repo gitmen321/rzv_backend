@@ -35,8 +35,6 @@ exports.updateMyProfile = async (req, res, next) => {
     try {
         const id = req.user.id;
         const updatedData = req.body;
-        console.log(updatedData, "id:", id);
-
 
         const updatedUser = await userService.updateUser(id, updatedData);
 
@@ -89,7 +87,7 @@ exports.getTransaction = async (req, res, next) => {
 exports.getReferralDetails = async (req, res, next) => {
     try {
         const id = req.user.id;
-        const result = await userService.getReferralDetaails(id);
+        const result = await userService.getReferralDetails(id);
 
         res.status(200).json({
             message: "User referral details",
@@ -109,7 +107,6 @@ exports.deleteUser = async (req, res, next) => {
     try {
         const id = req.user.id;
 
-        console.log("User id from authmiddl:", id);
         const deletedUser = await userService.deleteUser(id);
 
         res.status(200).json({

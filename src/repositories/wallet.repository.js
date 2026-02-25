@@ -28,7 +28,6 @@ class WalletRepository {
         ]);
 
         const totalBalance = result.length > 0 ? result[0].totalBalance : 0;
-        console.log('total balance:', totalBalance);
         return totalBalance;
     }
 
@@ -43,7 +42,6 @@ class WalletRepository {
 
 
     async incrementBalance(userId, amount, session = null) {
-        console.log('increment method calling', userId);
         return Wallet.findOneAndUpdate(
             { user: userId },
             { $inc: { balance: amount } },

@@ -5,9 +5,7 @@ const rediClient = require("../config/redis");
 const cache = (keyBuilder, ttl = 60) => {
     return async (req, res, next) => {
         try {
-            console.log("CACHE FILE LOADED");
             if (!rediClient.isReady) {
-                console.log("Redis not ready -skipping cache");
                 return next();
             }
             const key = keyBuilder(req);
@@ -15,7 +13,6 @@ const cache = (keyBuilder, ttl = 60) => {
             const cachedData = await redisClient.get(key);
 
             if (cachedData) {
-                console.log("CACHE hit", key);
                 return res.json(JSON.parse(cachedData));
             }
 
@@ -30,7 +27,6 @@ const cache = (keyBuilder, ttl = 60) => {
                             ttl,
                             JSON.stringify(data)
                         );
-                        console.log("CACHE miss", key);
                     }
                 }
                 catch (err) {

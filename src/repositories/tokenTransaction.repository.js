@@ -206,7 +206,6 @@ class TokenTransactionRepository {
             }
 
         ]);
-        console.log('totalrecords:', result[0].totalCount);
 
         return result.length > 0 ? result[0].totalCount : 0;
 
@@ -230,7 +229,6 @@ class TokenTransactionRepository {
                 },
             }
         ]);
-        console.log("TotalCount and amount:", result);
         return result[0] || { totalAmount: 0, totalCount: 0 };
     }
 

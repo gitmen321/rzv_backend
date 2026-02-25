@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
     try {
 
-        const mongoURI = 
+        const mongoURI =
             process.env.NODE_ENV === "test"
-            ? process.env.MONGO_TEST_URI
-            : process.env.MONGO_URI;
+                ? process.env.MONGO_TEST_URI
+                : process.env.MONGO_URI;
 
 
         await mongoose.connect(mongoURI);

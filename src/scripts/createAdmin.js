@@ -10,7 +10,6 @@ async function createAdmin() {
         const existingAdmin = await User.findOne({ role: "admin" });
 
         if (existingAdmin) {
-            console.log("Admin already existed");
             process.exit();
         }
 
@@ -23,11 +22,10 @@ async function createAdmin() {
             isActive: true
         });
 
-        console.log("Admin created successfully", admin.email);
         process.exit();
 
     } catch (error) {
-        console.log("Admin creation failed error:", error);
+        console.error("Admin creation failed error:", error);
         process.exit(1);
     }
 }

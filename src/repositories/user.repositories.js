@@ -5,7 +5,6 @@ class UserRepository {
 
     async findAll(page, limit, skip, sortField, sortOrder, filter) {
 
-        console.log("Fetching user[repo]");
         return await User.find({ ...filter }).skip(skip).limit(limit).sort({ [sortField]: sortOrder });
 
     };
@@ -87,8 +86,6 @@ class UserRepository {
             return await user.save({ session });
         }
         catch (err) {
-            console.log("Actual error:", err);
-
             throw err;
         }
     };

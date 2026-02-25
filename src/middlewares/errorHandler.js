@@ -1,8 +1,6 @@
 const errorHandler = (err, req, res, next) => {
     console.error(err.stack);
 
-    console.log("Error Handler Triggered");
-    console.log("HEADERS SENT?", res.headersSent);
 
     if (res.headersSent) {
         return next(err);

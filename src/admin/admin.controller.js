@@ -56,7 +56,6 @@ exports.getUserByName = async (req, res, next) => {
     try {
         const name = req.params.name;
         const user = await userService.getUserByName(name);
-        console.log(user);
         res.status(200).json(user);
 
     } catch (error) {
@@ -95,10 +94,8 @@ exports.getUserWallet = async (req, res, next) => {
 exports.updateUserStatus = async (req, res, next) => {
     try {
         const adminId = req.user.id;
-        console.log(adminId);
         const { id } = req.params;
         const { isActive } = req.body;
-        console.log("status:", isActive);
 
         const updatedUserStatus = await adminServices.updateUserStatus(id, isActive, adminId);
         res.status(200).json({
@@ -116,11 +113,9 @@ exports.adjustWalletBalance = async (req, res, next) => {
         const adminId = req.user.id;
         const { id } = req.params;
         const { amount, type, reason } = req.body;
-        console.log("userId:", id);
 
         const result = await adminServices.adjustWalletBalance(id, amount, type, reason, role, adminId);
         const message = type === "CREDIT" ? "WALLET_CREDITED" : "WALLET_DEBITED";
-        console.log("message:", message);
 
         res.status(200).json({
             message: message,

@@ -26,7 +26,7 @@ const createAuditLog = async ({
         });
     } catch (err) {
 
-        console.log('Audit Log failed:', err.message);
+        console.error('Audit Log failed:', err.message);
     }
 }
 

@@ -12,7 +12,7 @@ class RefreshTokenRepository {
             return await refreshTokenSchema.save();
 
         } catch (err) {
-            console.log('error:', err);
+            console.error('error:', err);
             throw err;
         }
     }

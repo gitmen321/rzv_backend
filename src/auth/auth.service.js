@@ -122,7 +122,6 @@ class AuthServices {
 
             const loggedOut = await this.refreshTokenRepository.revokeAllByUser(id);
 
-            console.log('role:', role, 'id:', id);
             if (role == 'admin') {
                 await auditLogs({
                     adminId: id,
@@ -277,10 +276,8 @@ class AuthServices {
         if (!user) {
             const err = new Error("TOKEN_INVALID_OR_EXPIRED");
             err.statusCode = 400;
-            console.log(err.name);
             throw err;
         }
-        console.log("username;", user.name);
 
         await this.refreshTokenRepository.revokeAllByUser(user.id);
 
@@ -290,7 +287,6 @@ class AuthServices {
         user.resetPasswordExpires = undefined;
 
         await user.save();
-        console.log("Password updated successfully..");
         return {
             message: "Password updated successfully"
         }
@@ -305,7 +301,6 @@ class AuthServices {
         if (!user) {
             const err = new Error("TOKEN_INVALID_OR_EXPIRED");
             err.statusCode = 400;
-            console.log(err.name);
             throw err;
         }
 
@@ -377,7 +372,6 @@ class AuthServices {
                 <p>Expires in 15 minutes.</p>
                 `,
         });
-        console.log("resent successfully");
 
         return {
             success: true,

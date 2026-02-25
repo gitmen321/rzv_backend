@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const createAuditLog = require('../audit/audit.helper');
-//const invalidateWalletRelatedCache = require("../infrastructure/cache/cache.service");
 const eventBus = require("../core/eventBus");
 
 class AdminServices {
@@ -171,9 +170,6 @@ class AdminServices {
 
         const oldUserWallet = await this.walletRepository.findByUserId(userId);
         const oldAmount = oldUserWallet.balance;
-        console.log('amount:', oldAmount);
-
-
 
         const session = await mongoose.startSession();
         try {
@@ -207,7 +203,6 @@ class AdminServices {
                 amount
             });
             
-            console.log('user:', user);
 
             const newUserWallet = await this.walletRepository.findByUserId(userId);
             const newAmount = newUserWallet.balance;
@@ -245,8 +240,6 @@ class AdminServices {
     async getWalletSummaryForAdmin(queryDate) {
 
         const date = new Date(queryDate);
-        console.log(date);
-
 
         const startOfDay = new Date(Date.UTC(
             date.getUTCFullYear(),
@@ -264,13 +257,10 @@ class AdminServices {
 
         const walletDoc = await this.tokenTransactionRepository.transactionSummary(startOfDay, endOfDay);
         const creditAmount = walletDoc.CREDIT.totalAmount;
-        console.log(creditAmount);
         const debitAmount = walletDoc.DEBIT.totalAmount;
-        console.log(debitAmount);
 
         const netAmount = creditAmount - debitAmount;
 
-        console.log("wallet documents:", walletDoc);
         return {
             data: walletDoc,
             meta: {

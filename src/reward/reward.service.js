@@ -32,7 +32,6 @@ class RewardServices {
 
             await session.commitTransaction();
             
-            console.log('rewardservice is succefully calling');
             eventBus.emit("WALLET_UPDATED", {
                 userId,
                 amount
@@ -79,7 +78,6 @@ class RewardServices {
 
             if (isLocalSession) await session.commitTransaction();
 
-            console.log("referred user reward service is successfully calling");
 
             return {
                 amount, reason, message: "REFERRAL_REWARD_GRANTED"
@@ -100,7 +98,6 @@ class RewardServices {
         const amount = REWARD_AMOUNTS.REFERRAL;
         const reason = REWARD_REASON.REFERRAL;
 
-        console.log("Reward reason:", reason);
 
         const session = externalSession || await mongoose.startSession();
         const isLocalSession = !externalSession;
@@ -121,7 +118,6 @@ class RewardServices {
 
             if (isLocalSession) await session.commitTransaction();
 
-            console.log("referral REward service is successfully calling");
 
             return {
                 amount, reason, message: "REFERRAL_REWARD_GRANTED"

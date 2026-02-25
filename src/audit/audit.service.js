@@ -12,8 +12,6 @@ class AuditServices {
         if (adminId) filters.adminId = adminId;
         if (targetedUserId) filters.targetedUserId = targetedUserId;
 
-        console.log('queries:', page, limit, filters);
-
         return this.auditRepository.findAll({
             filters,
             page: Number(page),

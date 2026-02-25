@@ -3,7 +3,6 @@ const AuditLog = require('../models/Audit');
 class AuditRepository {
 
     async create(data) {
-        console.log('audit repo is working');
         return AuditLog.create(data);
     }
 

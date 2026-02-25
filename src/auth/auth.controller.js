@@ -86,11 +86,9 @@ exports.logout = async (req, res, next) => {
     try {
         const id = req.user.id;
         const role = req.user.role;
-        console.log('role:', role);
 
         const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
         const userAgent = req.headers['user-agent'];
-        console.log('ipaddress:', ip, 'userAgent', userAgent);
 
         await authServices.logout(id, ip, userAgent, role);
 
@@ -125,7 +123,6 @@ exports.resetPassword = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.log('reser password error:', err);
         next(err);
     }
 }

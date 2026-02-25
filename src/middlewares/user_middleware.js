@@ -44,7 +44,6 @@ const isValidUpdate = (req, res, next) => {
 
     if (name) {
         if (name === undefined) {
-            console.log("name sould be defined");
             return res.status(400).json({
                 success: false,
                 message: "Name required",
@@ -70,8 +69,6 @@ const isValid = (req, res, next) => {
 
 
     if (!name || !email || !password) {
-        console.log(name, email);
-        console.log('middleware Invalid');
         return res.status(400).json({
             success: false,
             message: "Name and Email & password required",
@@ -105,7 +102,6 @@ const passwordConfirmation = (req, res, next) => {
     }
 
     if (password !== confirmPassword) {
-        console.log('password not verified');
         return res.status(400).json({
             success: false,
             message: "PASSWORD_MISMATCH"
@@ -270,7 +266,6 @@ const validateObjectId = (req, res, next) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-        console.log("invalid id");
         return res.status(400).json({
             success: false,
             message: "Invalid User Id format"

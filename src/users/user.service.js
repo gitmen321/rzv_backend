@@ -37,7 +37,6 @@ class UserServices {
         const filtered = _.pick(updatedData, allowedFiels);
 
         const updatedUser = await this.userRepository.update(id, filtered);
-        console.log('updated user:', updatedUser);
 
         if (!updatedUser) {
             throw new Error("USER_NOT_FOUND");
@@ -47,7 +46,6 @@ class UserServices {
 
     async getWalletDetails(id) {
         const userWalletData = await this.walletRepository.findByUserId(id);
-        console.log("userWalletData:", userWalletData);
 
         if (!userWalletData) throw new Error("WALLET_NOT_EXISTED");
 
@@ -93,7 +91,6 @@ class UserServices {
 
         if (!data || data.length === 0) return [];
 
-        console.log("Transaction summary: ", data);
 
         return data.map(transaction => ({
             type: transaction.type,
@@ -106,7 +103,6 @@ class UserServices {
     async getReferralDetails(id) {
 
         const reason = rewardReason.REWARD_REASON.REFERRAL;
-        console.log("userId:", id, "reason:", reason);
 
         const data = this.tokenTransactionRepository.getReferralRewardDetails(id, reason);
 

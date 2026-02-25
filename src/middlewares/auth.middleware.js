@@ -41,7 +41,6 @@ const isAuthenticated = async (req, res, next) => {
         }
 
         req.user = user;
-        console.log("requested usser:", req.user);
 
         if (!req.user || !req.user.id) {
             return res.status(401).json({
@@ -53,7 +52,7 @@ const isAuthenticated = async (req, res, next) => {
         next();
 
     } catch (err) {
-        console.log('error is:', err);
+        console.error('error is:', err);
         return res.status(401).json({
             success: false,
             message: AUTH_ERRORS.INVALID_TOKEN,

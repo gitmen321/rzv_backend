@@ -15,7 +15,7 @@ exports.getAuditLogs = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.log("error is:", err);
+        console.error("error is:", err);
         next(err);
     }
 
