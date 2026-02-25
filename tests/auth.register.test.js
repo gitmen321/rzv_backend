@@ -19,13 +19,13 @@ afterAll(async () => {
 });
 
 describe("Auth Module - Register", () => {
-    it("should regiter a new user successfully", async () => {
+    it("should register a new user successfully", async () => {
 
         const res = await request(app)
             .post("/api/register")
             .send({
-                name: "Test User",
-                email: "testuser@gmail.com",
+                name: "New Test User",
+                email: "testeduser@gmail.com",
                 password: "Password123",
                 confirmPassword: "Password123"
             });
