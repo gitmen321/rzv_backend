@@ -8,11 +8,20 @@ const connectDB = require("../src/config/db");
 
 describe("Auth module - verify-email", () => {
 
+  const testEmails = [
+    "verifyuser@gmail.com",
+    "usedtoken@gmail.com"
+  ];
+
   beforeAll(async () => {
     await connectDB();
+
+    await User.deleteMany({ email: { $in: testEmails } });
   });
 
   afterAll(async () => {
+    await User.deleteMany({ email: { $in: testEmails } });
+
     await mongoose.connection.close();
   });
 
@@ -21,13 +30,13 @@ describe("Auth module - verify-email", () => {
     // Step 1: Register user
     await request(app).post("/api/register").send({
       name: "TEST USER",
-      email: "verifyuser@gmail.com",
+      email: testEmails[0],
       password: "Password123",
       confirmPassword: "Password123",
     });
 
     // Step 2: Fetch user from DB
-    const user = await User.findOne({ email: "verifyuser@gmail.com" });
+    const user = await User.findOne({ email: testEmails[0] });
 
     expect(user).toBeTruthy();
     expect(user.isEmailVerified).toBe(false);
@@ -43,7 +52,7 @@ describe("Auth module - verify-email", () => {
     expect(res.statusCode).toBe(200);
 
     const updatedUser = await User.findOne({
-      email: "verifyuser@gmail.com",
+      email: testEmails[0],
     });
 
     expect(updatedUser.isEmailVerified).toBe(true);
@@ -65,12 +74,12 @@ describe("Auth module - verify-email", () => {
     // Step 1: Register user
     await request(app).post("/api/register").send({
       name: "Used Token User",
-      email: "usedtoken@gmail.com",
+      email: testEmails[1],
       password: "Password123",
       confirmPassword: "Password123",
     });
 
-    const user = await User.findOne({ email: "usedtoken@gmail.com" });
+    const user = await User.findOne({ email: testEmails[1] });
 
     // Step 2: Generate token manually
     const rawToken = user.createEmailVerificationToken();

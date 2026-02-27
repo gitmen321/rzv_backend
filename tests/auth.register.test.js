@@ -4,17 +4,17 @@ const app = require('../src/app');
 const mongoose = require('mongoose');
 const connectDB = require('../src/config/db');
 
+const User = require("../src/models/User");
+const testEmail = "testeduser@gmail.com";
+
 beforeAll(async () => {
     await connectDB();
 });
 
-// afterEach(async () => {
-//     if (mongoose.connection.readyState === 1) {
-//         await mongoose.connection.db.collection("users").deleteMany({});
-//     }
-// });
 
 afterAll(async () => {
+    await User.deleteOne({ email: testEmail });
+
     await mongoose.connection.close();
 });
 
@@ -25,12 +25,11 @@ describe("Auth Module - Register", () => {
             .post("/api/register")
             .send({
                 name: "New Test User",
-                email: "testeduser@gmail.com",
+                email: testEmail,
                 password: "Password123",
                 confirmPassword: "Password123"
             });
         expect(res.statusCode).toBe(201);
-
         expect(res.body).toHaveProperty("message");
     });
 });

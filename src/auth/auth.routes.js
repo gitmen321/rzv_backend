@@ -7,14 +7,20 @@ const isLoginvalid = require('../middlewares/login_middleware');
 const authController = require('./auth.controller');
 
 
-router.post('/login', rateLimit({
+router.post('/login-web', rateLimit({
     windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),
     maxRequests: Number(process.env.LOGIN_RATE_MAX),
-    keyPrefix: "login"
-}), isLoginvalid, authController.loginValidation);
+    keyPrefix: "adminLogin"
+}), isLoginvalid, authController.webLoginValidation);
+
+router.post('/login-mobile', rateLimit({
+    windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),
+    maxRequests: Number(process.env.LOGIN_RATE_MAX),
+    keyPrefix: "userLogin"
+}), isLoginvalid, authController.mobileLoginValidation);
 
 router.post('/register',
-     rateLimit({
+    rateLimit({
         windowSeconds: Number(process.env.REGISTER_RATE_WINDOW),
         maxRequests: Number(process.env.REGISTER_RATE_MAX),
         keyPrefix: "register"

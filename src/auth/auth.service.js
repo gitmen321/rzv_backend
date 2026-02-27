@@ -6,8 +6,6 @@ const { generateAccesToken, generateRefreshToken } = require('../utils/token');
 const RefreshTokenRepository = require('../repositories/refreshToken.repository');
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
-const { error } = require('console');
-const User = require('../models/User');
 
 
 class AuthServices {

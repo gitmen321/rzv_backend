@@ -15,26 +15,52 @@ const userRepository = new UserRepository();
 const rewardServices = new RewardServices(walletRepository, tokenTransaction);
 const authServices = new AuthServices(authRepository, rewardServices, userRepository, walletRepository);
 
-exports.loginValidation = async (req, res, next) => {
+exports.webLoginValidation = async (req, res, next) => {
     try {
-
         const { email, password } = req.body;
+
         const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
         const userAgent = req.headers['user-agent'];
 
-        const loginUser = await authServices.loginService(email, password, ip, userAgent);
+        const tokens = await authServices.loginService(email, password, ip, userAgent);
 
-        res.status(200).json({
-            message: "login successful",
-            user: loginUser
+        res.cookie("refreshToken", tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: process.env.COOKIE_SAMESITE || "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({
+            message: "LOGIN_SUCCESS",
+            accessToken: tokens.accessToken
         });
 
     } catch (err) {
         console.error('error:', err);
         next(err);
     };
-
 };
+
+exports.mobileLoginValidation = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+
+        const tokens = await authServices.loginService(email, password, ip, userAgent);
+
+        return res.status(200).json({
+            message: "LOGIN_SUCCESS",
+            accessToken: tokens.accessToken,
+            refresToken: tokens.refreshToken
+        });
+
+    } catch (err) {
+
+    }
+}
 
 exports.refreshToken = async (req, res, next) => {
     try {
@@ -43,20 +69,22 @@ exports.refreshToken = async (req, res, next) => {
         if (req.cookies?.refreshToken) {
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                maxAge: 7 * 24 * 60 * 1000
+                secure: process.env.NODE_ENV === "production", 
+                sameSite: process.env.COOKIE_SAMESITE || "lax",
+                maxAge: 7 * 24 * 60 * 60 * 1000
             });
             return res.status(200).json({
-                message: "TOKEN_REFRESHED",
+                message: 'TOKEN_REFRESHED',
                 accessToken: tokens.accessToken
             });
         }
 
         return res.status(200).json({
-            message: "TOKEN_REFRESHED",
-            ...tokens
+            message: 'TOKEN_REFRESHED',
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken
         });
+
     } catch (err) {
         next(err);
     }

@@ -13,7 +13,6 @@ describe("Auth Module - Login", () => {
     });
 
 
-
     afterAll(async () => {
         await mongoose.connection.close();
     });
@@ -21,24 +20,23 @@ describe("Auth Module - Login", () => {
     it("should login successfully with correct credentials", async () => {
 
         const res = await request(app)
-            .post("/api/login")
+            .post("/api/login-web")
             .send({
                 email: "testuser@gmail.com",
                 password: "Password123",
             });
         expect(res.statusCode).toBe(200);
 
-        expect(res.body).toHaveProperty("user");
-        expect(res.body.user).toHaveProperty("accessToken");
-        expect(res.body.user).toHaveProperty("refreshToken");
+        expect(res.body).toHaveProperty("accessToken");
+        // expect(res.body.user).toHaveProperty("refreshToken");
 
-        expect(res.body).toHaveProperty("message", "login successful");
+        expect(res.body).toHaveProperty("message", "LOGIN_SUCCESS");
     });
 
     //2 wrong password
-    it("should fail login if password is worng", async () => {
+    it("should fail login if password is wrong", async () => {
         const res = await request(app)
-            .post("/api/login")
+            .post("/api/login-web")
             .send({
                 email: "testuser@gmail.com",
                 password: "wrongPassword",
@@ -52,7 +50,7 @@ describe("Auth Module - Login", () => {
     it("should fail login if user doedn't exist", async () => {
 
         const res = await request(app)
-            .post("/api/login")
+            .post("/api/login-web")
             .send({
                 email: "raaz321@gmail.com",
                 password: "wrongPassword",
