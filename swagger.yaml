@@ -146,17 +146,17 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
 
 paths:
-  /api/health:
+  /health:
     get:
       tags:
         - System
       summary: Health Check
       security: []
       responses:
-        '200':
+        "200":
           description: Server Health Status
           content:
             application/json:
@@ -170,11 +170,11 @@ paths:
                     type: string
                     format: date-time
 
-  /login:
+  /login-web:
     post:
       tags:
         - Auth
-      summary: Login
+      summary: Web Login
       security: []
       requestBody:
         required: true
@@ -182,6 +182,9 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - email
+                - password
               properties:
                 email:
                   type: string
@@ -190,8 +193,13 @@ paths:
                   type: string
                   example: "password123"
       responses:
-        '200':
-          description: Login successful
+        "200":
+          description: Login successful (Web)
+          headers:
+            Set-Cookie:
+              description: HttpOnly refresh token cookie
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -199,33 +207,97 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "login successful"
+                    example: "LOGIN_SUCCESS"
                   accessToken:
                     type: string
                     example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "INVALID_REQUEST"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "INVALID_CREDENTIALS"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "ACCOUNT_DISABLED"
+        "429":
+          description: Too Many Requests
+
+  /login-mobile:
+    post:
+      tags:
+        - Auth
+      summary: Mobile Login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: "john@example.com"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        "200":
+          description: Login successful (Mobile)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "LOGIN_SUCCESS"
+                  accessToken:
+                    type: string
                   refreshToken:
                     type: string
-                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        '400':
-          description: Missing Details or Invalid user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Invalid Credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Unverified / Disabled
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "429":
+          description: Too Many Requests
 
   /register:
     post:
@@ -249,7 +321,7 @@ paths:
                 confirmPassword:
                   type: string
       responses:
-        '201':
+        "201":
           description: Registered
           content:
             application/json:
@@ -264,20 +336,20 @@ paths:
                   verifyToken:
                     type: string
                     description: Only included if EXPOSE_VERIFY_TOKEN is true
-        '400':
+        "400":
           description: Validation Error or Resent verification
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
           description: Email Already Registered
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /verify-email/{token}:
     get:
@@ -292,7 +364,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Email verified successfully
           content:
             application/json:
@@ -302,14 +374,14 @@ paths:
                   message:
                     type: string
                     example: "Email verified successfully"
-        '400':
+        "400":
           description: Invalid Token
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /resend-verification:
     post:
@@ -327,7 +399,7 @@ paths:
                 email:
                   type: string
       responses:
-        '200':
+        "200":
           description: Email resent
           content:
             application/json:
@@ -340,33 +412,35 @@ paths:
                   message:
                     type: string
                     example: "VERIFICATION_EMAIL_RESENT"
-        '400':
+        "400":
           description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
           description: User Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
           description: Email Already Verified
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
-  /refresh-token:
+  /refresh:
     post:
       tags:
         - Auth
       summary: Refresh Access Token
-      description: Refresh the user's access token. Accepts refreshToken via HttpOnly cookie OR request body.
+      description: |
+        For web: reads refresh token from HttpOnly cookie and returns new access token.
+        For mobile: expects refresh token in request body and returns both tokens.
       security: []
       requestBody:
         required: false
@@ -377,9 +451,10 @@ paths:
               properties:
                 refreshToken:
                   type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
       responses:
-        '200':
-          description: Token Refreshed
+        "200":
+          description: Token refreshed
           content:
             application/json:
               schema:
@@ -392,26 +467,26 @@ paths:
                     type: string
                   refreshToken:
                     type: string
-        '400':
+        "400":
           description: Account Disabled / Token Reuse
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Invalid Refresh Token
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
           description: User Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /forgot-password:
     post:
@@ -429,7 +504,7 @@ paths:
                 email:
                   type: string
       responses:
-        '200':
+        "200":
           description: Reset link sent successfully
           content:
             application/json:
@@ -439,8 +514,8 @@ paths:
                   message:
                     type: string
                     example: "Reset link sent successfully"
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /reset-password/{token}:
     post:
@@ -464,7 +539,7 @@ paths:
                 newPassword:
                   type: string
       responses:
-        '200':
+        "200":
           description: Password updated successfully
           content:
             application/json:
@@ -474,12 +549,12 @@ paths:
                   message:
                     type: string
                     example: "Password updated successfully"
-        '400':
+        "400":
           description: Token Invalid Or Expired
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /logout:
     post:
@@ -489,7 +564,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User Logged Out
           content:
             application/json:
@@ -501,12 +576,12 @@ paths:
                     example: "USER_LOGGED_OUT"
                   user:
                     type: string
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /user/me:
     get:
@@ -516,7 +591,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User Profile Details
           content:
             application/json:
@@ -527,15 +602,15 @@ paths:
                     type: string
                     example: "User profile details:"
                   user:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /user/wallet:
     get:
@@ -545,7 +620,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User Wallet Details
           content:
             application/json:
@@ -556,13 +631,13 @@ paths:
                     type: string
                     example: "User WalletDetails"
                   data:
-                    $ref: '#/components/schemas/Wallet'
-        '401':
+                    $ref: "#/components/schemas/Wallet"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /user/transactions:
     get:
@@ -591,7 +666,7 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Transaction History
           content:
             application/json:
@@ -607,19 +682,19 @@ paths:
                       transactions:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Transaction'
+                          $ref: "#/components/schemas/Transaction"
                       total:
                         type: integer
                       page:
                         type: integer
                       limit:
                         type: integer
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /user/referral:
     get:
@@ -629,7 +704,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User Referral Details
           content:
             application/json:
@@ -647,13 +722,13 @@ paths:
                       referredUsers:
                         type: array
                         items:
-                          $ref: '#/components/schemas/User'
-        '401':
+                          $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /user/update:
     put:
@@ -672,7 +747,7 @@ paths:
                 name:
                   type: string
       responses:
-        '200':
+        "200":
           description: User Updated
           content:
             application/json:
@@ -683,13 +758,13 @@ paths:
                     type: string
                     example: "User updated"
                   user:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /user/delete:
     delete:
@@ -699,7 +774,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User Deleted
           content:
             application/json:
@@ -710,13 +785,13 @@ paths:
                     type: string
                     example: "User Deleted"
                   user:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/dashboard/stats:
     get:
@@ -727,7 +802,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Dashboard Statistics
           content:
             application/json:
@@ -743,18 +818,18 @@ paths:
                     type: integer
                   totalWalletsBalance:
                     type: number
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/me:
     get:
@@ -765,7 +840,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Current Details
           content:
             application/json:
@@ -776,19 +851,19 @@ paths:
                     type: string
                     example: "Current details"
                   data:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/users:
     get:
@@ -799,7 +874,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Get all active users
           content:
             application/json:
@@ -812,21 +887,21 @@ paths:
                   user:
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'
-        '401':
+                      $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /users/by-name/{name}:
     get:
@@ -843,30 +918,30 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User Object
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '401':
+                $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
           description: User Name Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /admin/wallet/summary:
     get:
@@ -883,7 +958,7 @@ paths:
             type: string
             format: date
       responses:
-        '200':
+        "200":
           description: Wallet Summary
           content:
             application/json:
@@ -897,20 +972,20 @@ paths:
                     type: number
                   transactionsCount:
                     type: integer
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /admin/wallet/summary/range:
     get:
@@ -940,7 +1015,7 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Wallet Transactions Range
           content:
             application/json:
@@ -953,21 +1028,21 @@ paths:
                   transactions:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Transaction'
-        '401':
+                      $ref: "#/components/schemas/Transaction"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /admin/users/{id}:
     get:
@@ -984,7 +1059,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User Details
           content:
             application/json:
@@ -995,21 +1070,21 @@ paths:
                     type: string
                     example: "USER_DETAILS_BY_ID"
                   user:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /admin/users/{id}/wallet:
     get:
@@ -1034,7 +1109,7 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: User wallet details
           content:
             application/json:
@@ -1045,25 +1120,25 @@ paths:
                     type: string
                     example: "USER_WALLET_DETAILS"
                   wallet:
-                    $ref: '#/components/schemas/Wallet'
+                    $ref: "#/components/schemas/Wallet"
                   transactions:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Transaction'
-        '401':
+                      $ref: "#/components/schemas/Transaction"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
     patch:
       tags:
         - Admin
@@ -1092,7 +1167,7 @@ paths:
                 reason:
                   type: string
       responses:
-        '200':
+        "200":
           description: Balance Adjusted
           content:
             application/json:
@@ -1103,23 +1178,23 @@ paths:
                     type: string
                     example: "WALLET_CREDITED"
                   wallet:
-                    $ref: '#/components/schemas/Wallet'
+                    $ref: "#/components/schemas/Wallet"
                   transaction:
-                    $ref: '#/components/schemas/Transaction'
-        '401':
+                    $ref: "#/components/schemas/Transaction"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /admin/users/{id}/status:
     patch:
@@ -1145,7 +1220,7 @@ paths:
                 isActive:
                   type: boolean
       responses:
-        '200':
+        "200":
           description: User Status Updated
           content:
             application/json:
@@ -1156,21 +1231,21 @@ paths:
                     type: string
                     example: "USER_ACTIVATED"
                   user:
-                    $ref: '#/components/schemas/User'
-        '401':
+                    $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
 
   /audit-logs:
     get:
@@ -1181,7 +1256,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Audit Logs List
           content:
             application/json:
@@ -1194,19 +1269,19 @@ paths:
                   logs:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AuditLog'
-        '401':
+                      $ref: "#/components/schemas/AuditLog"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /recent/audit:
     get:
@@ -1217,7 +1292,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Recent Activity
           content:
             application/json:
@@ -1230,19 +1305,19 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AuditLog'
-        '401':
+                      $ref: "#/components/schemas/AuditLog"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden (Role not allowed)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /reward/daily-reward:
     post:
@@ -1252,7 +1327,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Reward Status Claimed
           content:
             application/json:
@@ -1263,16 +1338,16 @@ paths:
                     type: string
                     example: "Daily reward claimed successfully"
                   transaction:
-                    $ref: '#/components/schemas/Transaction'
-        '401':
+                    $ref: "#/components/schemas/Transaction"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
           description: Already Rewarded Today
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
