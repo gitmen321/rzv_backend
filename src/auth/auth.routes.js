@@ -10,13 +10,13 @@ const authController = require('./auth.controller');
 router.post('/login-web', rateLimit({
     windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),
     maxRequests: Number(process.env.LOGIN_RATE_MAX),
-    keyPrefix: "adminLogin"
+    keyPrefix: "webLogin"
 }), isLoginvalid, authController.webLoginValidation);
 
 router.post('/login-mobile', rateLimit({
     windowSeconds: Number(process.env.LOGIN_RATE_WINDOW),
     maxRequests: Number(process.env.LOGIN_RATE_MAX),
-    keyPrefix: "userLogin"
+    keyPrefix: "mobileLogin"
 }), isLoginvalid, authController.mobileLoginValidation);
 
 router.post('/register',
