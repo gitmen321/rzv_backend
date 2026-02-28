@@ -1,5 +1,4 @@
-const wallet = require('../models/wallet');
-const Wallet = require('../models/wallet');
+const Wallet = require('../models/Wallet');
 const mongoose = require('mongoose');
 
 class WalletRepository {
@@ -18,7 +17,7 @@ class WalletRepository {
     };
 
     async getTotalbalance() {
-        const result = await wallet.aggregate([
+        const result = await Wallet.aggregate([
             {
                 $group: {
                     _id: null,
