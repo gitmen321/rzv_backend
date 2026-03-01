@@ -1,13 +1,16 @@
 RZV Backend API
 
-A production-oriented backend system built using Node.js, Express, MongoDB, and Redis, implementing authentication, authorization, caching, transactions, audit logging, referral and reward systems, and automated testing.
+A production-ready backend system built using Node.js, Express, MongoDB, and Redis, implementing authentication, authorization, caching, financial transactions, audit logging, referral & reward systems, automated testing, CI/CD, Dockerization, and structured logging.
+
+🔴 Live API: (/api/health)
+https://rzv-backend.onrender.com/api/health
 
 ⸻
 
 🚀 Core Features
 
 🔐 Authentication & Authorization
-	•	JWT Authentication
+	•	JWT Authentication (Access + Refresh)
 	•	Refresh Token Rotation
 	•	Token Revocation
 	•	Email Verification Flow
@@ -15,23 +18,26 @@ A production-oriented backend system built using Node.js, Express, MongoDB, and 
 	•	Role-Based Access Control (RBAC)
 	•	Soft Delete User Lifecycle
 	•	Real-time Account Status Validation (DB-verified on every request)
+	•	Separate Login Endpoints (Web vs Mobile security flows)
+	•	CORS Hardened for secure cross-origin access
 
 ⸻
 
 ⚡ Performance & Caching
 	•	Redis Integration
 	•	Cache-Aside Pattern
-	•	TTL-based caching strategy
+	•	TTL-based caching
 	•	Event-Driven Cache Invalidation
-	•	Graceful Degradation (App runs even if Redis is down)
+	•	Redis Retry Connection Strategy
 	•	Redis-backed Rate Limiting
+	•	Graceful Degradation (App runs even if Redis fails)
 
 ⸻
 
 🔄 Data Consistency
 	•	MongoDB Transactions
 	•	Atomic Wallet Updates
-	•	ACID Compliance for financial operations
+	•	ACID compliance for financial flows
 	•	Event-based cache consistency
 
 ⸻
@@ -39,9 +45,9 @@ A production-oriented backend system built using Node.js, Express, MongoDB, and 
 📊 Business Systems
 	•	Referral System
 	•	Reward System
+	•	Wallet & Transaction Management
 	•	Admin Dashboard APIs
 	•	Audit Logging System
-	•	Wallet & Transaction Management
 
 ⸻
 
@@ -51,100 +57,51 @@ Layered Architecture:
 
 Controller → Service → Repository → Database
 
-Patterns used:
+Patterns Used:
 	•	Modular Monolith Architecture
 	•	Middleware Pattern
+	•	Repository Pattern
 	•	Adapter Pattern (Cache abstraction)
 	•	Cache-Aside Strategy
-	•	Event-Driven Design (Cache Invalidation)
+	•	Event-Driven Design
 	•	Centralized Error Handling
 	•	Soft Delete Pattern
-	•	Repository Pattern
+	•	Structured Logging (Pino)
+
+⸻
+
+🧩 Resilience & Production Safety
+
+MongoDB Runtime Monitoring
+	•	Connection error listener
+	•	Disconnection listener
+	•	Reconnection listener
+	•	Fail-fast startup strategy
+
+Process Crash Protection
+
+Handles:
+	•	Unhandled Promise Rejections
+	•	Uncaught Exceptions
+
+Prevents silent production crashes.
+
+Redis Resilience
+	•	Automatic retry strategy
+	•	Graceful fallback if Redis unavailable
+	•	Business logic never depends on cache
+
+⸻
 
 📁 Project Structure
 
-src/
- ├── admin/
- │     ├── admin.controller.js
- │     ├── admin.routes.js
- │     └── admin.services.js
- │
- ├── audit/
- │     ├── audit.controller.js
- │     ├── audit.repository.js
- │     ├── audit.routes.js
- │     └── audit.services.js
- │
- ├── auth/
- │     ├── auth.controller.js
- │     ├── auth.routes.js
- │     ├── auth.services.js
- │     └── eventBus.js
- │
- ├── reward/
- │     ├── reward.controller.js
- │     ├── reward.routes.js
- │     └── reward.services.js
- │
- ├── users/
- │     ├── user.controller.js
- │     ├── user.routes.js
- │     └── user.services.js
- │
- ├── repositories/
- │     ├── authRepository.js
- │     ├── refreshTokenRepository.js
- │     ├── tokenTransactionRepository.js
- │     ├── userRepository.js
- │     └── walletRepository.js
- │
- ├── models/
- │     ├── user.js
- │     ├── audit.js
- │     ├── refreshToken.js
- │     ├── tokenTransaction.js
- │     └── wallet.js
- │
- ├── infrastructure/
- │     └── cache/
- │           ├── cache.listener.js
- │           └── cache.service.js
- │
- ├── middlewares/
- │     ├── auth.middleware.js
- │     ├── role.middleware.js
- │     ├── errorHandler.js
- │     ├── logger.js
- │     └── rateLimiter.js
- │
- ├── config/
- │     ├── db.js
- │     ├── redis.js
- │     └── jest.config.js
- │
- ├── constants/
- │     ├── auth.constants.js
- │     └── reward.constants.js
- │
- ├── utils/
- │     ├── cacheInvalidation.js
- │     ├── generateReferral.js
- │     ├── sendEmail.js
- │     └── token.js
- │
- ├── scripts/
- │     └── createAdmin.js
- │
- └── app.js
+(Keep your existing structure section here — unchanged)
 
-server.js
-swagger.yaml
-postman/
-tests/
+⸻
 
-🧪 Testing
+🧪 Testing Strategy
 
-1️⃣ Jest + Supertest (Integration Tests)
+1️⃣ Integration Testing (Jest + Supertest)
 
 Located in:
 
@@ -154,35 +111,92 @@ Covers:
 	•	Auth Register
 	•	Auth Login
 	•	Email Verification
+	•	Token validation flows
+	•	CORS protected flows
 
-Run tests:
+Uses:
+	•	Dedicated MongoDB Test Database
+	•	Environment-based config (.env.test locally)
+	•	Real MongoDB Atlas DB in CI
+
+Run locally:
 
 npm test
 
-2️⃣ Postman Smoke Tests
+2️⃣ Postman Collections Included
 
-Collection included in:
+Located in:
 
 /postman
 
-Folders include:
-	•	Auth Smoke Tests
-	•	User Smoke Tests
-	•	Admin Smoke Tests
-	•	Audit Smoke Tests
-	•	Reward Smoke Tests
-	•	Secondary Flows (manual/destructive APIs)
+Includes:
+	•	Full API Collection
+	•	Environment File
 
-Smoke Tests are:
-	•	Idempotent
-	•	Safe to run multiple times
-	•	Fully automated
-	•	No manual token copy required
+Features:
+	•	Automated token handling
+	•	Smoke test suite
+	•	Admin tests
+	•	Audit tests
+	•	Reward tests
+	•	Destructive flows separated
 
-Secondary Flows contain:
-	•	State-mutating endpoints
-	•	Destructive APIs
-	•	Not part of automated smoke runs
+⸻
+
+🐳 Docker Support
+
+Application is fully Dockerized.
+
+Uses:
+	•	Node 20 base image
+	•	Production dependency install (npm ci --omit=dev)
+	•	Optimized layer caching
+	•	EXPOSE 3000
+
+Build image:
+
+docker build -t rzv-backend .
+
+Run container:
+
+docker run -p 3000:3000 --env-file .env rzv-backend
+
+Enables cross-machine reproducibility.
+
+⸻
+
+🔄 CI Pipeline (GitHub Actions)
+
+CI runs on:
+	•	Push to main
+	•	Pull Requests to main
+
+Pipeline:
+	•	Uses Node 20
+	•	Installs dependencies via npm ci
+	•	Injects MongoDB test URI via GitHub Secrets
+	•	Runs Jest integration tests
+	•	Fails build on any test failure
+
+CI must pass before production deployment (Render supports deploy after CI).
+
+⸻
+
+🚀 Deployment
+
+Deployed on:
+
+Render (Docker-based deployment)
+
+Live URL:
+
+https://rzv-backend.onrender.com
+
+Features:
+	•	Auto-deploy on commit
+	•	Production environment variables configured securely
+	•	NODE_ENV=production
+	•	Health endpoint monitoring
 
 ⸻
 
@@ -190,138 +204,89 @@ Secondary Flows contain:
 
 swagger.yaml
 
-After starting server:
+After running locally:
 
-Visit:
 http://localhost:3000/api-docs
-
-Provides interactive API documentation.
 
 ⸻
 
-⚙️ Setup Instructions (Manual Mode)
+⚙️ Local Setup
 
-1️⃣ Clone Repository
+1️⃣ Clone repository
 
 git clone <repo-url>
 cd rzv_backend
 
-2️⃣ Install Dependencies
+2️⃣ Install dependencies
 
 npm install
 
-3️⃣ Create Environment File
-
-Create .env in root:
+3️⃣ Create .env file
 
 PORT=3000
 MONGO_URI=your_mongo_uri
-MONGO_TEST_URI=your_test_mongo_uri
+MONGO_TEST_URI=your_test_uri
 JWT_SECRET=your_secret
-JWT_REFRESH_SECRET=your_refresh_secret
 JWT_EXPIRES_IN=15m
 REDIS_URL=redis://localhost:6379
-Etc
 
-4️⃣ Start Redis (Optional)
-
-If Redis is running:
-	•	Caching enabled
-	•	Rate limiting enabled
-
-If Redis is down:
-	•	App continues running
-	•	No caching
-	•	No rate limiting
-
-This ensures fault tolerance.
-
-⸻
-
-5️⃣ Create Admin User (Seed Script)
-
-node src/scripts/createAdmin.js
-
-node src/scripts/createAdmin.js
-
-This creates an admin user required for Admin Smoke Tests.
-
-6️⃣ Start Server
+4️⃣ Start server
 
 npm run dev
 
-🛡 🔐 Security Implementation Details
+🔐 Security Design
 
 Password Security
-	•	Passwords are hashed using bcrypt before storage
-	•	Hashing occurs at model level (pre-save hook)
-	•	Plain passwords are never stored in database
-
-⸻
+	•	bcrypt hashing
+	•	Pre-save model hooks
+	•	Plain passwords never stored
 
 JWT Strategy
 	•	Short-lived Access Tokens
 	•	Refresh Token Rotation
-	•	Refresh Tokens stored in database
-	•	Token Revocation on logout
-	•	DB verification on every protected request
-
-Access tokens are used only for identity.
-Authorization and account status are always validated from the database.
-
-On every authenticated request, user identity is verified via JWT and authorization data (role, account status) is fetched fresh from the database to prevent stale privilege usage.
-
-⸻
+	•	Token Revocation
+	•	DB validation on every protected request
 
 Account Protection
-	•	Soft Delete Pattern (isActive flag)
-	•	Inactive users cannot:
-	•	Log in
-	•	Access protected routes
-	•	Even valid JWTs are rejected if user is inactive
-
-⸻
+	•	Soft delete via isActive flag
+	•	JWT rejected if user inactive
 
 Rate Limiting
-	•	Redis-backed rate limiter
-	•	Protects against brute force & abuse
-	•	Gracefully degrades if Redis is unavailable
-
-⸻
-
-⚡ Cache Strategy
-	•	Cache-Aside Pattern
-	•	Event-Driven Invalidation
-	•	TTL-based expiration
-	•	Redis abstraction via cache service
-	•	Application survives Redis failure (Graceful Degradation)
-
-⸻
-
-🔄 Resilience Strategy
-
-System is designed to:
-	•	Run with Redis
-	•	Run without Redis
-	•	Never lose business data if cache fails
-	•	Maintain ACID consistency via MongoDB transactions
+	•	Redis-backed
+	•	Protects against brute force
+	•	Gracefully degrades if Redis down
 
 ⸻
 
 🧠 Engineering Highlights
-	•	Modular Monolith Design
-	•	Event-Driven Cache Invalidation
-	•	Atomic Financial Updates
-	•	Fault-Tolerant Cache Layer
-	•	Centralized Error Handling
-	•	Structured Logging Middleware
-	•	Clean Repository Abstraction
-	•	Production-ready Testing Strategy
+	•	Production-grade structured logging
+	•	Crash-safe startup handling
+	•	Retry-aware Redis design
+	•	Mongo runtime monitoring
+	•	Dockerized reproducible builds
+	•	CI-backed deployment flow
+	•	Modular monolith architecture
+	•	Financial transaction safety via Mongo transactions
 
 ⸻
 
-🔮 Upcoming Improvements
-	•	Dockerization (Mongo + Redis + App containers)
-	•	GitHub Actions CI Pipeline
-	•	Containerized Infrastructure
-	•	Production Deployment
+🔮 Future Enhancements
+	•	Horizontal scaling via load balancer
+	•	Log aggregation (ELK / Grafana)
+	•	Metrics monitoring (Prometheus)
+	•	Microservices extraction
+	•	Kubernetes deployment
+
+⸻
+
+🎯 Summary
+
+This backend is engineered with:
+	•	Production resilience
+	•	Fault tolerance
+	•	Security-first design
+	•	Clean architecture
+	•	CI/CD automation
+	•	Containerized deployment
+
+Built as a portfolio-grade system demonstrating real-world backend engineering principles.
