@@ -1,5 +1,7 @@
-function logger(req, res, next){
-    console.log(`Route Hit-> ${req.method} ${req.url}`);
+const strucLogger = require('../utils/structured-logger');
+
+function logger(req, res, next) {
+    strucLogger.info(`Route Hit-> ${req.method} ${req.url}`);
     next();
 }
 

@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const structuredLogger = require('../utils/structured-logger');
 
 const sendEmail = async ({ to, subject, html }) => {
     try {
@@ -18,7 +19,7 @@ const sendEmail = async ({ to, subject, html }) => {
             html
         });
     } catch (err) {
-        console.error("error:", err);
+        structuredLogger.error("error:", err);
         throw err;
     }
 };

@@ -1,5 +1,9 @@
 const RefreshToken = require('../models/RefreshToken');
+const structuredLogger = require('../utils/structured-logger');
+
 require('../models/User');
+
+
 class RefreshTokenRepository {
     async create({ userId, token, expiresAt }, session = null) {
         try {
@@ -12,7 +16,7 @@ class RefreshTokenRepository {
             return await refreshTokenSchema.save();
 
         } catch (err) {
-            console.error('error:', err);
+            structuredLogger.error('error:', err);
             throw err;
         }
     }

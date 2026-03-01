@@ -1,4 +1,4 @@
-
+const structuredLogger = require('../utils/structured-logger');
 const redisClient = require('../config/redis');
 
 const rateLimit = ({
@@ -12,7 +12,7 @@ const rateLimit = ({
             if (process.env.NODE_ENV === "test") return next(); //for integration testing
 
             if (!redisClient.isReady) {
-                console.warn(`[Rate Limit] Redis not ready. Bypassing for IP/User: ${req.user?.id || req.ip}`);
+                structuredLogger.warn(`[Rate Limit] Redis not ready. Bypassing for IP/User: ${req.user?.id || req.ip}`);
                 return next();
             }
 
@@ -33,7 +33,7 @@ const rateLimit = ({
             next();
 
         } catch (err) {
-            console.warn("RateLimiting error:", err);
+            structuredLogger.warn("RateLimiting error:", err);
             next();
         }
     }

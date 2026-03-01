@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const { AUTH_ERRORS } = require('../constants/auth.constants');
 const UserRespository = require('../repositories/user.repositories');
 
+const structuredLogger = require('../utils/structured-logger');
+
 const userRepository = new UserRespository();
 
 const isAuthenticated = async (req, res, next) => {
@@ -52,7 +54,7 @@ const isAuthenticated = async (req, res, next) => {
         next();
 
     } catch (err) {
-        console.error('error is:', err);
+        structuredLogger.error('error is:', err);
         return res.status(401).json({
             success: false,
             message: AUTH_ERRORS.INVALID_TOKEN,

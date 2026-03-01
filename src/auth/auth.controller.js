@@ -15,6 +15,8 @@ const userRepository = new UserRepository();
 const rewardServices = new RewardServices(walletRepository, tokenTransaction);
 const authServices = new AuthServices(authRepository, rewardServices, userRepository, walletRepository);
 
+const structuredLogger = require('../utils/structured-logger');
+
 exports.webLoginValidation = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -37,7 +39,7 @@ exports.webLoginValidation = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.error('error:', err);
+        structuredLogger.error('error:', err);
         next(err);
     };
 };

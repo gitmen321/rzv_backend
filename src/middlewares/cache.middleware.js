@@ -1,11 +1,11 @@
 const redisClient = require("../config/redis");
-const rediClient = require("../config/redis");
+const structuredLogger = require('../utils/structured-logger');
 
 
 const cache = (keyBuilder, ttl = 60) => {
     return async (req, res, next) => {
         try {
-            if (!rediClient.isReady) {
+            if (!redisClient.isReady) {
                 return next();
             }
             const key = keyBuilder(req);
@@ -30,13 +30,13 @@ const cache = (keyBuilder, ttl = 60) => {
                     }
                 }
                 catch (err) {
-                    console.warn("Cache error:", err);
+                    structuredLogger.warn("Cache error:", err);
                 }
                 return originalJson(data);
             };
             next();
         } catch (err) {
-            console.warn("Cache middleware error", err);
+            structuredLogger.warn("Cache middleware error", err);
             next();
         }
     };

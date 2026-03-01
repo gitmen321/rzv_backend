@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const connectDB = require('../config/db');
 require("dotenv").config();
+const structuredLogger = require('../utils/structured-logger');
 
 async function createAdmin() {
 
@@ -25,7 +26,7 @@ async function createAdmin() {
         process.exit();
 
     } catch (error) {
-        console.error("Admin creation failed error:", error);
+        structuredLogger.error("Admin creation failed error:", error);
         process.exit(1);
     }
 }

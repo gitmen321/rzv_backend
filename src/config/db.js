@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const structLogger = require('../utils/structured-logger');
+
+let disconnectTimer;
 
 const connectDB = async () => {
     try {
@@ -10,9 +13,32 @@ const connectDB = async () => {
 
 
         await mongoose.connect(mongoURI);
-        console.log("MongoDB connected successfully");
+        structLogger.info("MongoDB connected successfully");
+
+        mongoose.connection.on("error", (err) => {
+            structLogger.error({ err }, "MongoDB runtime connection error");
+        });
+
+        mongoose.connection.on("Disconnected", () => {
+            structLogger.warn("MongoDB disconnected");
+
+            disconnectTimer = setTimeout(() => {
+                structLogger.error("MongoDB not reconnected in time. shutting down.");
+                process.exit(1);
+            }, 15000);
+        });
+
+        mongoose.connection.on("reconnected", () => {
+            structLogger.info("MongoDB reconnected");
+
+            if (disconnectTimer) {
+                clearTimeout(disconnectTimer);
+                disconnectTimer = null;
+            }
+        });
+
     } catch (error) {
-        console.error(error, 'mongodb connection failed..');
+        structLogger.error(error, 'mongodb connection failed..');
     }
 
 };

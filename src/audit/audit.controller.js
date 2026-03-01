@@ -4,6 +4,8 @@ const AuditRepository = require('./audit.repository');
 const auditRepository = new AuditRepository();
 const auditServices = new AuditServices(auditRepository);
 
+const structuredLogger = require('../utils/structured-logger');
+
 
 exports.getAuditLogs = async (req, res, next) => {
     try {
@@ -15,7 +17,7 @@ exports.getAuditLogs = async (req, res, next) => {
         });
 
     } catch (err) {
-        console.error("error is:", err);
+        structuredLogger.error("error is:", err);
         next(err);
     }
 

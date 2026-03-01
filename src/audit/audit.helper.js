@@ -1,6 +1,8 @@
 const AuditRepository = require('./audit.repository');
 const auditRepository = new AuditRepository();
 
+const structuredLogger = require('../utils/structured-logger');
+
 
 const createAuditLog = async ({
     adminId,
@@ -26,7 +28,7 @@ const createAuditLog = async ({
         });
     } catch (err) {
 
-        console.error('Audit Log failed:', err.message);
+        structuredLogger.error('Audit Log failed:', err.message);
     }
 }
 

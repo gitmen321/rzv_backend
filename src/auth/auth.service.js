@@ -6,6 +6,7 @@ const { generateAccesToken, generateRefreshToken } = require('../utils/token');
 const RefreshTokenRepository = require('../repositories/refreshToken.repository');
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
+const structuredLogger = require('../utils/structured-logger');
 
 
 class AuthServices {
@@ -336,7 +337,7 @@ class AuthServices {
             if (session.inTransaction()) {
                 await session.abortTransaction();
             }
-            console.error("Transaction failed, rolling back changes", err);
+            structuredLogger.error("Transaction failed, rolling back changes", err);
             throw err;
         }
         finally {

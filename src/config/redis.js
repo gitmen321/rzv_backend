@@ -1,4 +1,6 @@
 const { createClient } = require('redis');
+const structuredLogger = require("../utils/structured-logger");
+
 
 const redisClient = createClient({
     url: process.env.REDIS_URL,
@@ -6,7 +8,7 @@ const redisClient = createClient({
     socket: {
         reconnectStrategy: (retries) => {
             if (retries > 5) {
-                console.error('Redis retry attempts exhausted.');
+                structuredLogger.error('Redis retry attempts exhausted.');
                 return false;
             }
             return Math.min(retries * 1000, 5000);
@@ -15,7 +17,7 @@ const redisClient = createClient({
 });
 
 redisClient.on('error', (err) => {
-    console.warn('Redis error:', err.message);
+    structuredLogger.warn('Redis error:', err.message);
 });
 
 

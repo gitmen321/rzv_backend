@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const structuredLogger = require('../utils/structured-logger');
 
 
 class UserRepository {
@@ -56,7 +57,7 @@ class UserRepository {
         try {
             return await User.countDocuments(filter);
         } catch (err) {
-            console.error('error:', err);
+            structuredLogger.error('error:', err);
             throw err;
         }
     }

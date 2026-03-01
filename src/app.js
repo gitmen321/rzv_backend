@@ -2,8 +2,13 @@ const express = require('express');
 const logger = require('./middlewares/logger');
 const cookieParser = require("cookie-parser");
 const cors = require('cors');
+const pinoHttp = require("pino-http");
+const structuredLogger = require("./utils/structured-logger");
 
 const app = express();
+
+app.use(pinoHttp({structuredLogger}));
+
 app.use(cookieParser());
 
 app.use(cors({

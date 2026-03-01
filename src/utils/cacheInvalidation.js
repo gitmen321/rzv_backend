@@ -1,4 +1,5 @@
 const redisClient = require("../config/redis");
+const structuredLogger = require('../utils/structured-logger');
 //currently we're using keys, it's okay for now, but need changes when app need huge scale
 
 const safeDelete = async (key) => {
@@ -6,7 +7,7 @@ const safeDelete = async (key) => {
         if (!redisClient.isReady) return;
         await redisClient.del(key);
     } catch (err) {
-        console.warn("Cache delete skipped", err);
+        structuredLogger.warn("Cache delete skipped", err);
     }
 };
 
@@ -19,7 +20,7 @@ const safeDeletePattern = async (pattern) => {
             await redisClient.del(key);
         }
     } catch (err) {
-        console.warn("Cache pattern delete skipped", err.message);
+        structuredLogger.warn("Cache pattern delete skipped", err.message);
     }
 };
 

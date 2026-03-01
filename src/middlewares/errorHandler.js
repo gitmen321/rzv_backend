@@ -1,5 +1,7 @@
+const structuredLogger = require('../utils/structured-logger');
+
 const errorHandler = (err, req, res, next) => {
-    console.error(err.stack);
+    structuredLogger.error(err.stack);
 
 
     if (res.headersSent) {
@@ -53,6 +55,13 @@ const errorHandler = (err, req, res, next) => {
 
     const statusCode = errorMap[err.message] || err.statusCode || 500;
     const message = statusCode === 500 ? "Internal Server Error" : err.message;
+
+
+    if (process.env.NODE_ENV === "production") {
+        return res.status(statusCode).json({
+            message: err.isOperational ? err.message : "Internal server Error",
+        });
+    }
 
     // 3. Single point of return
     return res.status(statusCode).json({
