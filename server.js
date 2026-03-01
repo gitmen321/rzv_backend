@@ -12,15 +12,15 @@ async function startServer() {
     try {
         if (process.env.NODE_ENV !== "test") {
 
-            try {
-                await redisClient.connect();
-                console.log('redis connected');
 
-            } catch (redisErr) {
-                console.warn('Redis connection failed, continue without redi', redisErr.message);
-            }
+            redisClient.connect()
+                .then(() => console.log('Redis connescted'))
+                .catch((err) =>
+                    console.warn('Redis connection failed, continue without redis:', err.message)
+                );
+
         }
-        
+
         await connectDB();
 
         app.listen(PORT, () => {
