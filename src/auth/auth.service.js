@@ -172,48 +172,29 @@ class AuthServices {
 
         const session = await mongoose.startSession();
 
+        let rawToken;
+        let createdUser;
+
         try {
             session.startTransaction();
 
-            const newUser = await this.userRepository.create({ email, password, name, isEmailVerified: false, isActive: false }, session);
+            createdUser = await this.userRepository.create({ email, password, name, isEmailVerified: false, isActive: false }, session);
 
-            await this.walletRepository.createWallet(newUser.id, 0, session);
+            await this.walletRepository.createWallet(createdUser.id, 0, session);
 
             //save referror
-            if (isRefered) newUser.referredBy = referral.id;
+            if (isRefered) createdUser.referredBy = referral.id;
 
-            const rawToken = newUser.createEmailVerificationToken();
+            rawToken = createdUser.createEmailVerificationToken();
 
             if (process.env.NODE_ENV === "test") {  //for integration testing
-                await newUser.save();
+                await createdUser.save();
             } else {
-                await newUser.save({ session });
-            }
-
-            const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
-
-            if (process.env.NODE_ENV !== "test") { //for integration testing
-                await sendEmail({
-                    to: newUser.email,
-                    subject: "Verify your email",
-                    html: `
-                <h2>Email Verification</h2>
-                <p>Click below to verify:</p>
-                <a href="${verifyLink}">${verifyLink}</a>
-                <p>Expires in 15 minutes.</p>
-                `,
-                });
+                await createdUser.save({ session });
             }
 
             await session.commitTransaction();
 
-
-            newUser.password = undefined;
-            const newEmail = newUser.email;
-            return {
-                newEmail,
-                rawToken
-            };
 
         } catch (err) {
             await session.abortTransaction();
@@ -222,6 +203,33 @@ class AuthServices {
         finally {
             await session.endSession();
         }
+
+        if (process.env.NODE_ENV !== "test") { //for integration testing
+            try {
+
+                const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+
+                await sendEmail({
+                    to: createdUser.email,
+                    subject: "Verify your email",
+                    html: `
+                <h2>Email Verification</h2>
+                <p>Click below to verify:</p>
+                <a href="${verifyLink}">${verifyLink}</a>
+                <p>Expires in 15 minutes.</p>
+                `,
+                });
+            } catch (emailError) {
+                structuredLogger.error(emailError, "Email sending failed after registration");
+            }
+        }
+
+        createdUser.password = undefined;
+        const newEmail = createdUser.email;
+        return {
+            newEmail,
+            rawToken
+        };
     };
 
     async forgotPassword(email) {
@@ -253,18 +261,10 @@ class AuthServices {
             <p>This link expires in 15 minutes.</p>
             `
             });
-            return { message: "Reset link sent successfully" };
         } catch (err) {
-
-            user.resetPasswordToken = undefined;
-            user.resetPasswordExpires = undefined;
-            await user.save();
-
-            const error = new Error("EMAIL_SEND_FAILED");
-            error.statusCode = 500;
-            throw error;
+            structuredLogger.error(err, "Reset email failed");
         }
-
+        return { message: "Reset link sent successfully" };
     }
 
     async resetPassword(token, newPassword) {
@@ -361,24 +361,27 @@ class AuthServices {
         await user.save();
 
         const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
-        await sendEmail({
-            to: user.email,
-            subject: "Verify your email",
-            html: `
+
+        try {
+            await sendEmail({
+                to: user.email,
+                subject: "Verify your email",
+                html: `
                 <h2>Email Verification</h2>
                 <p>Click below to verify:</p>
                 <a href="${verifyLink}">${verifyLink}</a>
                 <p>Expires in 15 minutes.</p>
                 `,
-        });
+            });
+        } catch (err) {
+            structuredLogger.error("Resend verification failed");
+        }
 
         return {
             success: true,
             message: "VERIFICATION_EMAIL_RESENT"
         }
-
     }
-
 };
 
 module.exports = AuthServices;
