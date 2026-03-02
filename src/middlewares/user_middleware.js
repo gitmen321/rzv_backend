@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const structLogger = require('../utils/structured-logger');
 
 
 const validDateRange = (req, res, next) => {
@@ -236,6 +237,7 @@ const validateEmail = (req, res, next) => {
             message: "INVALID_EMAIL_FORMAT"
         });
     }
+    structLogger.info("middleware valid");
     next();
 }
 

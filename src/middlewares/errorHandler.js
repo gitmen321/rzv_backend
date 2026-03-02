@@ -58,8 +58,10 @@ const errorHandler = (err, req, res, next) => {
 
 
     if (process.env.NODE_ENV === "production") {
+        const isKnownError = errorMap[err.message] || err.statusCode;
+
         return res.status(statusCode).json({
-            message: err.isOperational ? err.message : "Internal server Error",
+            message: isKnownError ? err.message : "Internal server Error",
         });
     }
 

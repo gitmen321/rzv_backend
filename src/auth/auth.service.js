@@ -7,6 +7,7 @@ const RefreshTokenRepository = require('../repositories/refreshToken.repository'
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
 const structuredLogger = require('../utils/structured-logger');
+const { raw } = require('express');
 
 
 class AuthServices {
@@ -204,24 +205,36 @@ class AuthServices {
             await session.endSession();
         }
 
+        if (process.env.EMAIL_ENABLED !== "true") {
+            structuredLogger.info("Email skipped (demo mode)");
+
+            createdUser.password = undefined;
+            const newEmail = createdUser.email;
+
+            await this.verifyEmail(rawToken);
+
+            return {
+                newEmail,
+                rawToken
+            };
+        }
+
         if (process.env.NODE_ENV !== "test") { //for integration testing
-            try {
 
-                const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+            const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
 
-                await sendEmail({
-                    to: createdUser.email,
-                    subject: "Verify your email",
-                    html: `
+            await sendEmail({
+                to: createdUser.email,
+                subject: "Verify your email",
+                html: `
                 <h2>Email Verification</h2>
                 <p>Click below to verify:</p>
                 <a href="${verifyLink}">${verifyLink}</a>
                 <p>Expires in 15 minutes.</p>
                 `,
-                });
-            } catch (emailError) {
+            }).catch((emailError) => {
                 structuredLogger.error(emailError, "Email sending failed after registration");
-            }
+            });
         }
 
         createdUser.password = undefined;
@@ -248,6 +261,15 @@ class AuthServices {
 
         await user.save();
 
+        if (process.env.EMAIL_ENABLED !== "true") {
+            structuredLogger.info("Email skipped (demo mode)");
+
+            return {
+                token: rawToken,
+                message: "Reset link sent successfully"
+            };
+        }
+
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${rawToken}`;
 
         try {
@@ -264,7 +286,9 @@ class AuthServices {
         } catch (err) {
             structuredLogger.error(err, "Reset email failed");
         }
-        return { message: "Reset link sent successfully" };
+        return {
+            message: "Reset link sent successfully"
+        };
     }
 
     async resetPassword(token, newPassword) {
@@ -360,6 +384,16 @@ class AuthServices {
         const rawToken = user.createEmailVerificationToken();
         await user.save();
 
+        if (process.env.EMAIL_ENABLED !== "true") {
+
+            structuredLogger.info("Email skipped (demo mode)");
+
+            return {
+                token: rawToken,
+                message: "VERIFICATION_EMAIL_RESENT"
+            }
+        }
+
         const verifyLink = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
 
         try {
@@ -378,7 +412,6 @@ class AuthServices {
         }
 
         return {
-            success: true,
             message: "VERIFICATION_EMAIL_RESENT"
         }
     }
