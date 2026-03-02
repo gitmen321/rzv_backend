@@ -18,19 +18,53 @@ https://rzv-backend.onrender.com/api/health
 	•	Role-Based Access Control (RBAC)
 	•	Soft Delete User Lifecycle
 	•	Real-time Account Status Validation (DB-verified on every request)
-	•	Separate Login Endpoints (Web vs Mobile security flows)
+	•	Web Login:
+		-	Returns Access Token only
+		-	Refresh token stored in HTTP-only secure cookie
+		-	Refresh token rotation enabled
+	•	Mobile/App Login:
+		-	Returns both Access Token and Refresh Token
+		-	Designed for mobile clients without cookie support
+	•	Refresh Token Flow:
+		-	If refresh token comes from cookies → rotate token & return new access token only
+		-	If refresh token comes from request body → return new access + refresh token
+		-	Token reuse detection implemented
+		-	Server-side validation on every refresh
+	•	Access Token expiry: 15 minutes (configurable)
+	•	Refresh Token expiry: 7 days (configurable)
+	•	Refresh tokens stored hashed in database
+	•	Token reuse detection for compromised token protection
 	•	CORS Hardened for secure cross-origin access
+
+⸻
+
+📨 Email & Demo Mode Handling
+	•	Nodemailer-based email system implemented
+	•	Email verification & password reset flows architected
+	•	Email sending decoupled from MongoDB transactions
+	•	Email sending wrapped in isolated try/catch (non-blocking)
+	•	Production Demo Mode:
+		-	Email sending temporarily disabled in live deployment
+		-	Reason: Render free-tier network restrictions prevent reliable external SMTP connections
+		-	Core logic remains fully implemented
+		-	Raw verification/reset tokens returned in demo mode for frontend testing
+	•	Architecture designed to easily switch to SendGrid / Resend / SES for production-grade SMTP
 
 ⸻
 
 ⚡ Performance & Caching
 	•	Redis Integration
+	•	Redis used for:
+		-	Rate limiting (IP-based)
+		-	Cache-Aside data caching
+		-	Token blacklist support
 	•	Cache-Aside Pattern
-	•	TTL-based caching
+	•	TTL enforced for cache consistency
 	•	Event-Driven Cache Invalidation
 	•	Redis Retry Connection Strategy
 	•	Redis-backed Rate Limiting
 	•	Graceful Degradation (App runs even if Redis fails)
+	•	Stateless backend design (horizontal scaling ready)
 
 ⸻
 
@@ -67,6 +101,16 @@ Patterns Used:
 	•	Centralized Error Handling
 	•	Soft Delete Pattern
 	•	Structured Logging (Pino)
+	•	Non-blocking Email Strategy:
+		-	Email sending executed after DB commit
+		-	Failure does NOT rollback user creation
+		-	Prevents long HTTP response blocking
+		-	Production-safe design
+	•	Environment-based configuration (.env.development, .env.test, .env.production)
+	•	Input validation middleware layer before controllers
+	•	Swagger OpenAPI documentation manually defined via swagger.yaml
+	•	Structured logs in JSON format (Pino) for production aggregation
+	•	Stateless service design (scales behind load balancer)
 
 ⸻
 
@@ -197,6 +241,16 @@ Features:
 	•	Production environment variables configured securely
 	•	NODE_ENV=production
 	•	Health endpoint monitoring
+	•	Application designed as stateless container
+	•	Compatible with horizontal scaling (multiple instances)
+	•	Health endpoint supports liveness checks
+
+⚠️ Demo Environment Notes (Render Free Tier)
+	•	Free instance may spin down on inactivity
+	•	Initial requests may take 30–50 seconds
+	•	SMTP email sending disabled in live demo due to cloud network restrictions
+	•	All email flows fully functional in local environment
+	•	Demo mode exposes tokens in response for testing frontend integration
 
 ⸻
 
@@ -250,6 +304,12 @@ JWT Strategy
 Account Protection
 	•	Soft delete via isActive flag
 	•	JWT rejected if user inactive
+	•	HTTP-only refresh token cookies (web flow)
+	•	Token rotation + reuse detection
+	•	DB-backed token validation
+	•	Account status validated on every protected request
+	•	Centralized production-safe error handler
+	•	Environment-based error exposure
 
 Rate Limiting
 	•	Redis-backed
@@ -276,6 +336,27 @@ Rate Limiting
 	•	Metrics monitoring (Prometheus)
 	•	Microservices extraction
 	•	Kubernetes deployment
+	•	Message Queue integration (BullMQ / Kafka) for background jobs
+	•	Dedicated Email Service provider (SendGrid / SES)
+	•	AI/RAG microservice integration (FastAPI-based service)
+	•	API Gateway layer for microservice transition
+	•	Distributed rate limiting for scaled instances
+
+⸻
+
+🧪 Demo Mode Behavior (For Recruiters)
+
+In live demo:
+	•	Registration returns verification token (instead of sending email)
+	•	Forgot password returns reset token (instead of email link)
+	•	Email verification endpoint still validates token logic
+	•	Password reset flow fully functional
+	•	Auth token rotation fully operational
+
+This ensures:
+	•	Backend logic can be tested without SMTP dependency
+	•	Business logic remains production-grade
+	•	No core security compromise
 
 ⸻
 
