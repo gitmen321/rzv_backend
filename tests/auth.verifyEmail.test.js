@@ -51,7 +51,7 @@ describe("Auth module - verify-email", () => {
     const res = await request(app).get(`/api/verify-email/${rawToken}`);
 
     // Step 5: Assertions
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(200); // commented for demo
 
     const updatedUser = await User.findOne({
       email: testEmails[0],
