@@ -5,7 +5,6 @@ const UserRepository = require('../repositories/user.repositories');
 
 const AuthServices = require('./auth.service');
 const RewardServices = require('../reward/reward.service');
-const { response } = require('express');
 
 const authRepository = new AuthRepository();
 const walletRepository = new WalletRepository();
@@ -56,7 +55,7 @@ exports.mobileLoginValidation = async (req, res, next) => {
         return res.status(200).json({
             message: "LOGIN_SUCCESS",
             accessToken: tokens.accessToken,
-            refresToken: tokens.refreshToken
+            refreshToken: tokens.refreshToken
         });
 
     } catch (err) {
@@ -100,7 +99,7 @@ exports.register = async (req, res, next) => {
 
         const response = {
             message: "Verification Email sent to your Email Address. Please verify your email to activate your account",
-            registeredUser
+            ...registeredUser
         };
         if (process.env.EXPOSE_VERIFY_TOKEN === "true") {
             response.verifyToken = registeredUser.rawToken

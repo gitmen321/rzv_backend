@@ -216,7 +216,7 @@ class AuthServices {
             return {
                 newEmail,
                 demo: {
-                    verificationToken: rawToken
+                    verifyToken: rawToken
                 }
             };
         }
@@ -273,7 +273,7 @@ class AuthServices {
                 }
             };
         }
-
+EMAIL_ENABLED
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${rawToken}`;
 
         try {
