@@ -215,7 +215,9 @@ class AuthServices {
 
             return {
                 newEmail,
-                rawToken
+                demo: {
+                    verificationToken: rawToken
+                }
             };
         }
 
@@ -265,8 +267,10 @@ class AuthServices {
             structuredLogger.info("Email skipped (demo mode)");
 
             return {
-                token: rawToken,
-                message: "Reset link sent successfully"
+                message: "Reset link sent successfully",
+                demo: {
+                    resetToken: rawToken
+                }
             };
         }
 

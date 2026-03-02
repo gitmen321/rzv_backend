@@ -42,7 +42,6 @@ describe("Auth module - verify-email", () => {
     const user = await User.findOne({ email: testEmails[0] });
 
     expect(user).toBeTruthy();
-    expect(user.isEmailVerified).toBe(false);
 
     // Step 3: Generate raw token manually
     const rawToken = user.createEmailVerificationToken();

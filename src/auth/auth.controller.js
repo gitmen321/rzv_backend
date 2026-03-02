@@ -100,7 +100,7 @@ exports.register = async (req, res, next) => {
 
         const response = {
             message: "Verification Email sent to your Email Address. Please verify your email to activate your account",
-            email: registeredUser.newEmail
+            registeredUser
         };
         if (process.env.EXPOSE_VERIFY_TOKEN === "true") {
             response.verifyToken = registeredUser.rawToken
