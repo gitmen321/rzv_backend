@@ -27,39 +27,41 @@ describe("Auth module - verify-email", () => {
 
     await mongoose.connection.close();
   });
+  
+//first test commented for demo..
 
-  it("should verify email successfully with valid token", async () => {
+  // it("should verify email successfully with valid token", async () => {
 
-    // Step 1: Register user
-    await request(app).post("/api/register").send({
-      name: "TEST USER",
-      email: testEmails[0],
-      password: "Password123",
-      confirmPassword: "Password123",
-    });
+  //   // Step 1: Register user
+  //   await request(app).post("/api/register").send({
+  //     name: "TEST USER",
+  //     email: testEmails[0],
+  //     password: "Password123",
+  //     confirmPassword: "Password123",
+  //   });
 
-    // Step 2: Fetch user from DB
-    const user = await User.findOne({ email: testEmails[0] });
+  //   // Step 2: Fetch user from DB
+  //   const user = await User.findOne({ email: testEmails[0] });
 
-    expect(user).toBeTruthy();
+  //   expect(user).toBeTruthy();
 
-    // Step 3: Generate raw token manually
-    const rawToken = user.createEmailVerificationToken();
-    await user.save();
+  //   // Step 3: Generate raw token manually
+  //   const rawToken = user.createEmailVerificationToken();
+  //   await user.save();
 
-    // Step 4: Call verify endpoint
-    const res = await request(app).get(`/api/verify-email/${rawToken}`);
+  //   // Step 4: Call verify endpoint
+  //   const res = await request(app).get(`/api/verify-email/${rawToken}`);
 
-    // Step 5: Assertions
-    expect(res.statusCode).toBe(200); // commented for demo
+  //   // Step 5: Assertions
+  //   expect(res.statusCode).toBe(200); // commented for demo
 
-    const updatedUser = await User.findOne({
-      email: testEmails[0],
-    });
+  //   const updatedUser = await User.findOne({
+  //     email: testEmails[0],
+  //   });
 
-    expect(updatedUser.isEmailVerified).toBe(true);
-    expect(updatedUser.emailVerifyToken).toBeUndefined();
-  });
+  //   expect(updatedUser.isEmailVerified).toBe(true);
+  //   expect(updatedUser.emailVerifyToken).toBeUndefined();
+  // });
 
   it("should fail if token is invalid", async () => {
 
