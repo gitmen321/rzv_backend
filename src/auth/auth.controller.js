@@ -23,11 +23,11 @@ exports.webLoginValidation = async (req, res, next) => {
         const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
         const userAgent = req.headers['user-agent'];
 
-        const tokens = await authServices.loginService(email, password, ip, userAgent);
+        const tokens = await authServices.webLoginService(email, password, ip, userAgent);
 
         res.cookie("refreshToken", tokens.refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production", 
+            secure: process.env.NODE_ENV === "production",
             sameSite: process.env.COOKIE_SAMESITE || "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
@@ -50,7 +50,7 @@ exports.mobileLoginValidation = async (req, res, next) => {
         const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
         const userAgent = req.headers['user-agent'];
 
-        const tokens = await authServices.loginService(email, password, ip, userAgent);
+        const tokens = await authServices.mobileLoginService(email, password, ip, userAgent);
 
         return res.status(200).json({
             message: "LOGIN_SUCCESS",
@@ -59,7 +59,8 @@ exports.mobileLoginValidation = async (req, res, next) => {
         });
 
     } catch (err) {
-
+        structuredLogger.error('error:', err);
+        next(err);
     }
 }
 
@@ -70,7 +71,7 @@ exports.refreshToken = async (req, res, next) => {
         if (req.cookies?.refreshToken) {
             res.cookie("refreshToken", tokens.refreshToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production", 
+                secure: process.env.NODE_ENV === "production",
                 sameSite: process.env.COOKIE_SAMESITE || "lax",
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });

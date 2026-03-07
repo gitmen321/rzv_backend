@@ -24,7 +24,7 @@ describe("Auth Module - Login", () => {
     it("should login successfully with correct credentials", async () => {
 
         const res = await request(app)
-            .post("/api/login-web")
+            .post("/api/login-mobile")
             .send({
                 email: "testuser@gmail.com",
                 password: "Password123",
@@ -40,7 +40,7 @@ describe("Auth Module - Login", () => {
     //2 wrong password
     it("should fail login if password is wrong", async () => {
         const res = await request(app)
-            .post("/api/login-web")
+            .post("/api/login-mobile")
             .send({
                 email: "testuser@gmail.com",
                 password: "wrongPassword",
@@ -54,7 +54,7 @@ describe("Auth Module - Login", () => {
     it("should fail login if user doedn't exist", async () => {
 
         const res = await request(app)
-            .post("/api/login-web")
+            .post("/api/login-mobile")
             .send({
                 email: "raaz321@gmail.com",
                 password: "wrongPassword",

@@ -7,7 +7,6 @@ const RefreshTokenRepository = require('../repositories/refreshToken.repository'
 const auditLogs = require('../audit/audit.helper');
 const sendEmail = require('../utils/sendEmail');
 const structuredLogger = require('../utils/structured-logger');
-const { raw } = require('express');
 
 
 class AuthServices {
@@ -19,9 +18,9 @@ class AuthServices {
         this.refreshTokenRepository = new RefreshTokenRepository();
     }
 
-    async loginService(email, password, ip, userAgent) {
+    async webLoginService(email, password, ip, userAgent) {
 
-        const user = await this.authRepository.findByEmailWithPass(email);
+        const user = await this.authRepository.findByAdminEmailWithPass(email);
 
         if (!user || !user.isActive || !user.isEmailVerified) throw new Error("USER_NOT_EXISTED_OR_VERIFIED");
 
@@ -45,8 +44,6 @@ class AuthServices {
             expiresAt
         });
 
-
-        // await this.rewardServices.dailyLoginReward(user); 
         user.password = undefined;
 
         if (user.role == 'admin') {
@@ -66,6 +63,43 @@ class AuthServices {
         };
 
     };
+
+    async mobileLoginService(email, password, ip, userAgent) {
+
+        const user = await this.authRepository.findByUserEmailWithPass(email);
+
+        if (!user || !user.isActive || !user.isEmailVerified) throw new Error("USER_NOT_EXISTED_OR_VERIFIED");
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) throw new Error("INVALID_CREDENTIALS");
+
+
+        const payload = {
+            id: user._id,
+            email: user.email,
+            role: user.role,
+        };
+        const accessToken = generateAccesToken(payload);
+        const refreshTokenValue = generateRefreshToken();
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        await this.refreshTokenRepository.create({
+            userId: user._id,
+            token: refreshTokenValue,
+            expiresAt
+        });
+
+        // await this.rewardServices.dailyLoginReward(user); 
+        user.password = undefined;
+
+        return {
+            accessToken,
+            refreshToken: refreshTokenValue
+        };
+
+    };
+
 
     async refreshToken(refreshTokenValue) {
 
