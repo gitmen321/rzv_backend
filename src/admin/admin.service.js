@@ -167,6 +167,9 @@ class AdminServices {
             throw new Error("USER_NOT_FOUND");
         }
 
+        if(userId === adminId){
+            throw new Error("NOT_POSSIBLE");
+        }
 
         const oldUserWallet = await this.walletRepository.findByUserId(userId);
         const oldAmount = oldUserWallet.balance;

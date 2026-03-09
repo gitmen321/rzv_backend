@@ -20,7 +20,7 @@ router.get('/admin/users', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit
     keyPrefix: 'admin-users'
 }), adminController.getAllUsers);
 
-router.get('/users/by-name/:name', authorizeRole(ROLE.ADMIN), isAuthenticated, userValidation.validateName, adminController.getUserByName);
+router.get('/admin/users/by-name/:name', isAuthenticated, authorizeRole(ROLE.ADMIN), userValidation.validateName, adminController.getUserByName);
 
 
 router.get('/admin/wallet/summary', isAuthenticated, authorizeRole(ROLE.ADMIN), rateLimit({

@@ -22,7 +22,7 @@ exports.getCurrentMe = async (req, res, next) => {
             data: result
         });
     } catch (err) {
-
+        next(err);
     }
 }
 
@@ -97,10 +97,9 @@ exports.updateUserStatus = async (req, res, next) => {
         const { id } = req.params;
         const { isActive } = req.body;
 
-        const updatedUserStatus = await adminServices.updateUserStatus(id, isActive, adminId);
+        await adminServices.updateUserStatus(id, isActive, adminId);
         res.status(200).json({
             message: isActive ? "USER_ACTIVATED" : "USER_DEACTIVATED",
-            user: updatedUserStatus
         });
     } catch (err) {
         next(err);
@@ -154,7 +153,6 @@ exports.getWalletSummaryInRange = async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-
 }
 
 

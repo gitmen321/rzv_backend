@@ -5,7 +5,7 @@ const validateObjectId = (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
             success: false,
-            message: "Invalid User Id format"
+            message: "INVALID_USER_ID_FORMAT"
         });
 
     }
