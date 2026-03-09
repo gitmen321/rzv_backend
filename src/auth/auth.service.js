@@ -168,7 +168,7 @@ class AuthServices {
 
 
         } catch (err) {
-            throw new Error("Logout failed", err);
+            throw new Error("LOGOUT_FAILED", err);
 
         }
     }
@@ -285,7 +285,7 @@ class AuthServices {
         const user = await this.userRepository.findByEmail(email);
         if (!user) {
             return {
-                message: "if thath email exists, reset link has been sent"
+                message: "if that email exists, reset link has been sent"
             };
         }
 
@@ -307,7 +307,6 @@ class AuthServices {
                 }
             };
         }
-EMAIL_ENABLED
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${rawToken}`;
 
         try {
