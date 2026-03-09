@@ -14,11 +14,17 @@ const errorHandler = (err, req, res, next) => {
     }
 
     if (["DB_ERROR", "MongooseError", "MongoError"].includes(err.name)) {
-        return res.status(503).json({ message: "Database temporary unavailable" });
+        return res.status(503).json({
+            success: false,
+            message: "Database temporary unavailable"
+        });
     }
 
     if (err instanceof SyntaxError && err.type === 'entity.parse.failed') {
-        return res.status(400).json({ message: 'Invalid Json body' });
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid Json body'
+        });
     }
 
     if (err.code === 11000) {
@@ -61,6 +67,7 @@ const errorHandler = (err, req, res, next) => {
         const isKnownError = errorMap[err.message] || err.statusCode;
 
         return res.status(statusCode).json({
+            success: false,
             message: isKnownError ? err.message : "Internal server Error",
         });
     }
