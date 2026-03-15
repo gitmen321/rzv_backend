@@ -27,8 +27,8 @@ exports.webLoginValidation = async (req, res, next) => {
 
         res.cookie("refreshToken", tokens.refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.COOKIE_SAMESITE || "lax",
+            secure: true,
+            sameSite: process.env.COOKIE_SAMESITE || "none",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
