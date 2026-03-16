@@ -92,7 +92,7 @@ class AdminServices {
 
 
     async getUsersByIdForAdmin(id) {
-        const userById = await this.userRepository.findById(id);
+        const userById = await this.userRepository.findByIdAdmin(id);
         if (!userById) {
             throw new Error("USER_NOT_FOUND");
         }
