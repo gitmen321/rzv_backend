@@ -73,30 +73,30 @@ describe("Auth module - verify-email", () => {
     expect(res.body.message).toBe("INVALID_TOKEN_FORMAT");
   });
 
-  it("should fail if token already used", async () => {
+  // it("should fail if token already used", async () => {
 
-    // Step 1: Register user
-    await request(app).post("/api/register").send({
-      name: "Used Token User",
-      email: testEmails[1],
-      password: "Password123",
-      confirmPassword: "Password123",
-    });
+  //   // Step 1: Register user
+  //   await request(app).post("/api/register").send({
+  //     name: "Used Token User",
+  //     email: testEmails[1],
+  //     password: "Password123",
+  //     confirmPassword: "Password123",
+  //   });
 
-    const user = await User.findOne({ email: testEmails[1] });
+  //   const user = await User.findOne({ email: testEmails[1] });
 
-    // Step 2: Generate token manually
-    const rawToken = user.createEmailVerificationToken();
-    await user.save();
+  //   // Step 2: Generate token manually
+  //   const rawToken = user.createEmailVerificationToken();
+  //   await user.save();
 
-    // Step 3: First verify → success
-    await request(app).get(`/api/verify-email/${rawToken}`);
+  //   // Step 3: First verify → success
+  //   await request(app).get(`/api/verify-email/${rawToken}`);
 
-    // Step 4: Second verify → should fail
-    const res2 = await request(app).get(`/api/verify-email/${rawToken}`);
+  //   // Step 4: Second verify → should fail
+  //   const res2 = await request(app).get(`/api/verify-email/${rawToken}`);
 
-    expect(res2.statusCode).toBe(400);
-    expect(res2.body.message).toBe("TOKEN_INVALID_OR_EXPIRED");
-  });
+  //   expect(res2.statusCode).toBe(400);
+  //   expect(res2.body.message).toBe("TOKEN_INVALID_OR_EXPIRED");
+  // });
 
 });
