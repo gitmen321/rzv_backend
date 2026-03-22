@@ -236,6 +236,8 @@ Live URL:
 
 https://rzv-backend.onrender.com
 
+Redis: Upstash
+
 Features:
 	•	Auto-deploy on commit
 	•	Production environment variables configured securely
