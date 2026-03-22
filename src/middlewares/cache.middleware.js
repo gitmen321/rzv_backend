@@ -13,6 +13,7 @@ const cache = (keyBuilder, ttl = 60) => {
             const cachedData = await redisClient.get(key);
 
             if (cachedData) {
+                res.setHeader('X-Cache', 'HIT');
                 return res.json(JSON.parse(cachedData));
             }
 
@@ -27,6 +28,7 @@ const cache = (keyBuilder, ttl = 60) => {
                             ttl,
                             JSON.stringify(data)
                         );
+                        res.setHeader('X-Cache', 'MISS');
                     }
                 }
                 catch (err) {
