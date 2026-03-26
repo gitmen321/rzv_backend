@@ -18,7 +18,7 @@
 ---
 
 🔴 **Live API:** [https://rzv-backend.onrender.com/api/health](https://rzv-backend.onrender.com/api/health)  
-📘 **Swagger Docs (local):** [https://rzv-backend.onrender.com/api-docs](http://localhost:3000/api-docs)
+📘 **Swagger Docs :** [https://rzv-backend.onrender.com/api-docs](http://localhost:3000/api-docs)
 
 ---
 
