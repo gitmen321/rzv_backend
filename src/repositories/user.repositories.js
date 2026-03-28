@@ -92,11 +92,14 @@ class UserRepository {
         }
     };
 
-    async updateStatusByAdmin(id, isActive) {
+    async updateStatusByAdmin(id, isActive, session = null) {
         return await User.findByIdAndUpdate(
             id,
             { isActive },
-            { new: true }
+            {
+                new: true,
+                session
+            }
         );
     };
 

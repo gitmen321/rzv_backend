@@ -15,12 +15,25 @@ const safeDeletePattern = async (pattern) => {
     try {
         if (!redisClient.isReady) return;
 
-        const keys = await redisClient.keys(pattern);
-        for (const key of keys) {
-            await redisClient.del(key);
+        let cursor = '0';
+
+        do {
+            const reply = await redisClient.scan(cursor, {
+                MATCH: pattern,
+                COUNT: 100
+            });
+
+            cursor = reply.cursor;
+            const keys = reply.keys;
+
+            if (keys.length > 0) {
+                await redisClient.del(keys);
+            }
+        }   while (cursor !== '0');
+      
         }
-    } catch (err) {
-        structuredLogger.warn("Cache pattern delete skipped", err.message);
+     catch (err) {
+        structuredLogger.warn("Cache pattern delete failed", err.message);
     }
 };
 

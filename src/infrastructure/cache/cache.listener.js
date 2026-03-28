@@ -1,7 +1,11 @@
 const eventBus = require("../../core/eventBus");
-const invalidateWalletRelatedCache = require("../cache/cache.service");
+const invalidateAdminDashboardCache = require("../cache/cache.service");
 
-eventBus.on("WALLET_UPDATED", async (payload) => {
+eventBus.on("WALLET_UPDATED", async () => {
 
-    await invalidateWalletRelatedCache();
-})
+    await invalidateAdminDashboardCache();
+});
+
+eventBus.on("USER_STATUS_UPDATE", async () => {
+    await invalidateAdminDashboardCache();
+});

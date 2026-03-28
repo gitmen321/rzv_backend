@@ -145,19 +145,38 @@ class AdminServices {
 
         const oldValue = currentStatus.isActive;
 
-        const user = await this.userRepository.updateStatusByAdmin(id, isActive);
-        if (!user) {
-            throw new Error("USER_NOT_FOUND");
-        }
+        const session = await mongoose.startSession();
 
-        await createAuditLog({
-            adminId,
-            action: 'USER_STATUS_UPDATE',
-            targetedUserId: user.id,
-            oldValue: { isActive: oldValue },
-            newValue: { isActive }
-        });
-        return user;
+        try {
+            session.startTransaction();
+
+            const user = await this.userRepository.updateStatusByAdmin(id, isActive, session);
+            if (!user) {
+                throw new Error("USER_NOT_FOUND");
+            }
+
+            await createAuditLog({
+                adminId,
+                action: 'USER_STATUS_UPDATE',
+                targetedUserId: user.id,
+                oldValue: { isActive: oldValue },
+                newValue: { isActive }
+            }, session);
+
+            await session.commitTransaction();
+
+            eventBus.emit("USER_STATUS_UPDATE", {
+                userId: user.id
+            });
+
+            return user;
+
+        } catch (error) {
+            await session.abortTransaction();
+            throw err;
+        } finally {
+            await session.endSession();
+        }
     }
 
     async adjustWalletBalance(userId, amount, type, reason, role, adminId) {
@@ -167,7 +186,7 @@ class AdminServices {
             throw new Error("USER_NOT_FOUND");
         }
 
-        if(userId === adminId){
+        if (userId === adminId) {
             throw new Error("NOT_POSSIBLE");
         }
 
@@ -205,7 +224,7 @@ class AdminServices {
                 userId,
                 amount
             });
-            
+
 
             const newUserWallet = await this.walletRepository.findByUserId(userId);
             const newAmount = newUserWallet.balance;

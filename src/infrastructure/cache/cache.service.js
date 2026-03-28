@@ -1,7 +1,7 @@
 const { safeDelete, safeDeletePattern } = require("../../utils/cacheInvalidation");
 
-const invalidateWalletRelatedCache = async () => {
+const invalidateAdminDashboardCache = async () => {
     await safeDelete("CACHE:admin:dashboard:stats");
     await safeDeletePattern("CACHE:admin:wallet:*");
 }
-module.exports = invalidateWalletRelatedCache;
+module.exports = invalidateAdminDashboardCache;
