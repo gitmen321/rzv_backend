@@ -2,8 +2,14 @@ const AuditLog = require('../models/Audit');
 
 class AuditRepository {
 
-    async create(data) {
-        return AuditLog.create(data);
+    async create(data, session = null) {
+        try {
+            const [newLog] = await AuditLog.create([data], { session });
+            return newLog;
+        } catch (err) {
+            structuredLogger.error('REPOSITORY_CREATE_AUDIT_LOG_FAILED', { err: err.message });
+            throw err;
+        }
     }
 
     async findAll({

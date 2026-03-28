@@ -49,7 +49,7 @@ class AuthServices {
                 userId: user._id,
                 token: refreshTokenValue,
                 expiresAt
-            }, { session });
+            }, session );
 
             if (user.role == 'admin') {
                 const adminId = user.id;
@@ -59,7 +59,7 @@ class AuthServices {
                     action: "ADMIN_LOGIN",
                     ipAddress: ip,
                     userAgent: userAgent
-                }, { session });
+                }, session );
             }
 
             await session.commitTransaction();

@@ -13,7 +13,7 @@ const createAuditLog = async ({
     ipAddress = null,
     userAgent = null,
     meta = {}
-}) => {
+}, session = null) => {
     try {
 
         await auditRepository.create({
@@ -25,10 +25,10 @@ const createAuditLog = async ({
             ipAddress,
             userAgent,
             meta
-        });
+        }, session );
     } catch (err) {
-
         structuredLogger.error('Audit Log failed:', err.message);
+        throw err;
     }
 }
 
