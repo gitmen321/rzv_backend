@@ -833,7 +833,7 @@ npm run dev
 | Highlight | Detail |
 |---|---|
 | **Financial-grade transactions** | Every wallet mutation wrapped in MongoDB sessions with proper abort/commit/cleanup |
-| **Event-driven cache invalidation** | Custom EventBus emits domain events, infrastructure layer listens and invalidates relevant cache keys |
+| **Event-driven cache invalidation** | Custom EventBus emits domain events, infrastructure layer listens and invalidates relevant cache keys using curson scan |
 | **Real-time account enforcement** | Auth middleware queries DB on every request — deactivated users are locked out immediately, not after token expiry |
 | **Token reuse detection** | Revoked refresh token reuse triggers full account token revocation (compromised token protection) |
 | **Immutable audit trail** | Mongoose pre-hooks physically prevent audit log modification/deletion at the ORM level |
