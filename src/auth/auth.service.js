@@ -22,45 +22,61 @@ class AuthServices {
 
         const user = await this.authRepository.findByAdminEmailWithPass(email);
 
-        if (!user || !user.isActive || !user.isEmailVerified) throw new Error("USER_NOT_EXISTED_OR_VERIFIED");
+        if (!user || !user.isActive || !user.isEmailVerified) throw new Error("INVALID_CREDENTIALS");
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) throw new Error("INVALID_CREDENTIALS");
 
+        const session = await mongoose.startSession();
 
-        const payload = {
-            id: user._id,
-            email: user.email,
-            role: user.role,
-        };
-        const accessToken = generateAccesToken(payload);
-        const refreshTokenValue = generateRefreshToken();
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        try {
 
-        await this.refreshTokenRepository.create({
-            userId: user._id,
-            token: refreshTokenValue,
-            expiresAt
-        });
+            session.startTransaction();
 
-        user.password = undefined;
+            const payload = {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+            };
+            const accessToken = generateAccesToken(payload);
+            const refreshTokenValue = generateRefreshToken();
 
-        if (user.role == 'admin') {
-            const adminId = user.id;
+            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-            await auditLogs({
-                adminId,
-                action: "ADMIN_LOGIN",
-                ipAddress: ip,
-                userAgent: userAgent
-            });
+            await this.refreshTokenRepository.create({
+                userId: user._id,
+                token: refreshTokenValue,
+                expiresAt
+            }, { session });
+
+            if (user.role == 'admin') {
+                const adminId = user.id;
+
+                await auditLogs({
+                    adminId,
+                    action: "ADMIN_LOGIN",
+                    ipAddress: ip,
+                    userAgent: userAgent
+                }, { session });
+            }
+
+            await session.commitTransaction();
+
+            return {
+                accessToken,
+                refreshToken: refreshTokenValue
+            };
+
+
+        } catch (err) {
+            await session.abortTransaction();
+            structuredLogger.error(`Login failed for ${email}: ${err.message}`);
+            throw (err);
         }
-
-        return {
-            accessToken,
-            refreshToken: refreshTokenValue
-        };
+        finally {
+            await session.endSession();
+        }
 
     };
 
@@ -194,15 +210,14 @@ class AuthServices {
         const existingEmail = await this.userRepository.findByEmailBeforeRegister(email);
 
         if (existingEmail) {
+            throw new Error("EMAIL_ALREADY_REGISTERED");
+            // if (existingEmail.isEmailVerified) {
+            //     // throw new Error("EMAIL_ALREADY_REGISTERED");
+            // }
 
-            if (existingEmail.isEmailVerified) {
-                throw new Error("EMAIL_ALREADY_REGISTERED");
-            }
+            // await this.resendVerifyEmail(email);
 
-            await this.resendVerifyEmail(email);
-
-            throw new Error("EMAIL_NOT_VERIFIED_RESENT");
-
+            // throw new Error("EMAIL_NOT_VERIFIED_RESENT");
         }
 
         const session = await mongoose.startSession();

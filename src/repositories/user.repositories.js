@@ -11,11 +11,12 @@ class UserRepository {
     };
 
     async findByEmail(email) {
-        return await User.findOne({ email, isActive: true });
+        return await User.findOne({ email: String(email), isActive: true });
     };
 
     async findByEmailBeforeRegister(email) {
-        return await User.findOne({ email });
+        const result = await User.exists({ email: String(email) });
+        return !!result;
     }
 
     async userByToken(hashedToken) {
