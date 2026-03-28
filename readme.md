@@ -438,8 +438,45 @@ Audit log creation is wrapped in an isolated `try/catch` via `audit.helper.js` �
 └──────────────────────┴──────────────────────────────────────┘
 ```
 
+### NoSQL Injection Prevention
+
+All database queries that accept user-supplied input are protected against **NoSQL injection attacks** via explicit type casting at the repository layer:
+
+```
+                         NoSQL INJECTION DEFENSE
+
+  ❌ VULNERABLE (without type casting):
+  ──────────────────────────────────────────────
+  // Attacker sends: { "email": { "$gt": "" } }
+  User.findOne({ email: email })          ← MongoDB operator injection
+  // This becomes: User.findOne({ email: { $gt: "" } })
+  // Result: Returns the FIRST user in the database — attacker gets in!
+
+  ✅ PROTECTED (with String() type casting):
+  ──────────────────────────────────────────────
+  // Attacker sends: { "email": { "$gt": "" } }
+  User.findOne({ email: String(email) })  ← Forces to string type
+  // This becomes: User.findOne({ email: "[object Object]" })
+  // Result: No match found — attack neutralized!
+```
+
+**Where it's applied:**
+
+| File | Method | Protection |
+|---|---|---|
+| `auth.repository.js` | `findByAdminEmailWithPass(email)` | `String(email)` casting before MongoDB query |
+| `auth.repository.js` | `findByUserEmailWithPass(email)` | `String(email)` casting before MongoDB query |
+| `user.repositories.js` | `findByEmail(email)` | `String(email)` casting before MongoDB query |
+| `user.repositories.js` | `findByEmailBeforeRegister(email)` | `String(email)` casting before MongoDB query |
+
+**Defense-in-Depth Strategy:**
+1. **Middleware Layer** — Input validation with regex patterns (`/^\S+@\S+\.\S+$/`) rejects malformed input early
+2. **Repository Layer** — `String()` type casting ensures MongoDB operators injected as objects are neutralized
+3. **Schema Layer** — Mongoose schema type definitions provide an additional validation boundary
+
 | Security Feature | Implementation |
 |---|---|
+| **NoSQL Injection Prevention** | Explicit `String()` type casting on all user-supplied query parameters at the repository layer — prevents MongoDB operator injection (`$gt`, `$ne`, `$regex`) attacks |
 | **Password Hashing** | bcrypt with salt rounds 10, via Mongoose `pre('save')` hook. Passwords **never stored in plain text**, `select: false` in schema prevents accidental exposure |
 | **Refresh Token Rotation** | Old token revoked immediately upon use, new token issued. Every refresh generates a fresh token pair |
 | **Token Reuse Detection** | If a revoked token is presented, **all tokens for that user are revoked** — treats it as a compromised token scenario |
@@ -512,6 +549,7 @@ Audit log creation is wrapped in an isolated `try/catch` via `audit.helper.js` �
 | **Dynamic Cache Keys** | Keys built from request params: `CACHE:admin:wallet:summary:{date}`, `CACHE:admin:wallet:range:{start}:{end}:{page}:{limit}` |
 | **TTL Enforcement** | 60-second TTL on all cached endpoints |
 | **Event-Driven Invalidation** | `WALLET_UPDATED` event triggers deletion of `CACHE:admin:dashboard:stats` + `CACHE:admin:wallet:*` pattern |
+| **SCAN Cursor Invalidation** | Pattern-based cache invalidation uses Redis `SCAN` with cursor instead of `KEYS` — O(1) per iteration vs O(n) full keyspace scan, production-safe at any scale |
 | **Graceful Degradation** | All cache operations check `redisClient.isReady` before proceeding. If Redis is down, requests pass through to DB |
 | **Only Successful Caching** | Cache middleware only stores data for 2xx responses |
 | **Stateless Design** | No server-side session state — horizontally scalable behind any load balancer |
@@ -523,6 +561,43 @@ Audit log creation is wrapped in an isolated `try/catch` via `audit.helper.js` �
 | `GET /admin/dashboard/stats` | `CACHE:admin:dashboard:stats` | 60s |
 | `GET /admin/wallet/summary` | `CACHE:admin:wallet:summary:{date}` | 60s |
 | `GET /admin/wallet/summary/range` | `CACHE:admin:wallet:range:{start}:{end}:{page}:{limit}` | 60s |
+
+### Cache Invalidation Strategy — Why SCAN over KEYS
+
+```
+  ❌ KEYS command (dangerous at scale):
+  ──────────────────────────────────────────────
+  KEYS CACHE:admin:wallet:*
+  → Scans ENTIRE keyspace in ONE blocking operation
+  → O(n) where n = total keys in Redis
+  → Blocks ALL other Redis operations during execution
+  → 1M keys? Redis freezes for seconds — causes cascading timeouts
+
+  ✅ SCAN cursor (production-safe):
+  ──────────────────────────────────────────────
+  SCAN 0 MATCH CACHE:admin:wallet:* COUNT 100
+  → Iterates in small batches (100 keys per iteration)
+  → O(1) per iteration — non-blocking
+  → Other Redis commands execute between iterations
+  → 1M keys? Redis stays responsive throughout
+```
+
+**Implementation (`cacheInvalidation.js`):**
+```javascript
+const safeDeletePattern = async (pattern) => {
+    let cursor = '0';
+    do {
+        const reply = await redisClient.scan(cursor, {
+            MATCH: pattern,
+            COUNT: 100     // Process 100 keys per batch
+        });
+        cursor = reply.cursor;
+        if (reply.keys.length > 0) {
+            await redisClient.del(reply.keys);  // Batch delete matched keys
+        }
+    } while (cursor !== '0');  // Continue until full scan complete
+};
+```
 
 ---
 
@@ -833,7 +908,9 @@ npm run dev
 | Highlight | Detail |
 |---|---|
 | **Financial-grade transactions** | Every wallet mutation wrapped in MongoDB sessions with proper abort/commit/cleanup |
-| **Event-driven cache invalidation** | Custom EventBus emits domain events, infrastructure layer listens and invalidates relevant cache keys using curson scan |
+| **NoSQL injection prevention** | Explicit `String()` type casting at the repository layer neutralizes MongoDB operator injection attacks (`$gt`, `$ne`, `$regex`) — defense-in-depth with middleware validation + schema types |
+| **Event-driven cache invalidation** | Custom EventBus emits domain events, infrastructure layer listens and invalidates relevant cache keys using SCAN cursor |
+| **SCAN cursor invalidation** | Pattern-based cache deletion uses Redis `SCAN` (O(1) per iteration) instead of `KEYS` (O(n) blocking) — production-safe at any keyspace size |
 | **Real-time account enforcement** | Auth middleware queries DB on every request — deactivated users are locked out immediately, not after token expiry |
 | **Token reuse detection** | Revoked refresh token reuse triggers full account token revocation (compromised token protection) |
 | **Immutable audit trail** | Mongoose pre-hooks physically prevent audit log modification/deletion at the ORM level |
