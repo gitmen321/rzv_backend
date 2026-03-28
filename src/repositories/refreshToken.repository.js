@@ -5,15 +5,19 @@ require('../models/User');
 
 
 class RefreshTokenRepository {
+    
     async create({ userId, token, expiresAt }, session = null) {
         try {
-            const refreshTokenSchema = new RefreshToken({
+            const [newSource] = await RefreshToken.create(
+                [{
                 user: userId,
                 token: token,
                 expiresAt: expiresAt
-            });
+            }],
+            {session}
+        );
 
-            return await refreshTokenSchema.save();
+        return newSource;
 
         } catch (err) {
             structuredLogger.error('error:', err);
@@ -25,7 +29,6 @@ class RefreshTokenRepository {
 
         return await RefreshToken.findOne({
             token: token,
-            revoked: false,
             expiresAt: { $gt: new Date() }
         }).populate('user');
     };

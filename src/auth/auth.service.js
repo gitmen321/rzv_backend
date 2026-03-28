@@ -15,6 +15,7 @@ class AuthServices {
             this.rewardServices = rewardServices,
             this.userRepository = userRepository,
             this.walletRepository = walletRepository
+        this.REFRESH_DAYS = parseInt(process.env.REFRESH_TOKEN_EXPIRY_DAYS || 7);
         this.refreshTokenRepository = new RefreshTokenRepository();
     }
 
@@ -42,7 +43,7 @@ class AuthServices {
             const accessToken = generateAccesToken(payload);
             const refreshTokenValue = generateRefreshToken();
 
-            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            const expiresAt = new Date(Date.now() + this.REFRESH_DAYS * 24 * 60 * 60 * 1000);
 
             await this.refreshTokenRepository.create({
                 userId: user._id,
@@ -98,7 +99,7 @@ class AuthServices {
         };
         const accessToken = generateAccesToken(payload);
         const refreshTokenValue = generateRefreshToken();
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const expiresAt = new Date(Date.now() + this.REFRESH_DAYS * 24 * 60 * 60 * 1000);
 
         await this.refreshTokenRepository.create({
             userId: user._id,
@@ -144,7 +145,7 @@ class AuthServices {
 
         const newRefreshToken = generateRefreshToken();
 
-        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        const expiresAt = new Date(Date.now() + this.REFRESH_DAYS * 24 * 60 * 60 * 1000);
 
 
         await this.refreshTokenRepository.create({
