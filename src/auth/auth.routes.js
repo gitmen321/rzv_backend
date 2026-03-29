@@ -44,7 +44,7 @@ router.post('/refresh-token', rateLimit({
     keyPrefix: "refreshToken"
 }), validations.refreshTokenValidation, authController.refreshToken);
 
-router.post('/logout', isAuthenticated, authController.logout);
+router.post('/logout', isAuthenticated, validations.refreshTokenValidation, authController.logout);
 
 router.post('/forgot-password', rateLimit({
     windowSeconds: Number(process.env.FORGOT_PASS_RATE_WINDOW),

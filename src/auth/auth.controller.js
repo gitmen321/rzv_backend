@@ -120,7 +120,9 @@ exports.logout = async (req, res, next) => {
         const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
         const userAgent = req.headers['user-agent'];
 
-        await authServices.logout(id, ip, userAgent, role);
+        const refreshToken = req.refreshToken;
+
+        await authServices.logout(id, refreshToken, ip, userAgent, role);
 
         return res.status(200).json({
             message: "USER_LOGGED_OUT",

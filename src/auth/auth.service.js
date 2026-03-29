@@ -168,10 +168,10 @@ class AuthServices {
         }
     };
 
-    async logout(id, ip, userAgent, role) {
+    async logout(id, refreshToken, ip, userAgent, role) {
         try {
 
-            const loggedOut = await this.refreshTokenRepository.revokeAllByUser(id);
+            const loggedOut = await this.refreshTokenRepository.revokeToken(refreshToken);
 
             if (role == 'admin') {
                 await auditLogs({
